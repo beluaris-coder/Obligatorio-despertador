@@ -18,7 +18,7 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* esconder scrollbar en Chrome, Safari y Opera */
+/* esconder scrollbar en Chrome, Safari y Opera - prueba de comentario */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
