@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-red-500: red;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+* {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* esconder scrollbar en Chrome, Safari y Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* esconder scrollbar en IE, Edge y Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE y Edge */
+  scrollbar-width: none; /* Firefox */
+}
