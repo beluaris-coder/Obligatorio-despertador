@@ -6,7 +6,7 @@ import Message from "./Shared/Message";
 import { useQuery } from "@tanstack/react-query";
 // import { useEffect, useState } from "react";
 
-const ListadoNoticias = (props) => {
+const ListadoEscenas = (props) => {
   const { selectedCategory, search } = props;
   // const [noticias, setNoticias] = useState([]);
   // const [isLoading, setIsLoading] = useState(true);

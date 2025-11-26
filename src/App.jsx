@@ -1,14 +1,14 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import DetalleNoticia from "./components/DetalleNoticia";
-import Noticias from "./components/Noticias";
+import Dashboard from "./components/Dashboard";
 import NotFound from "./components/NotFound";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Noticias />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/noticia/:id" element={<DetalleNoticia />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Filtros from "./Filtros";
 import Header from "./Header";
-import ListadoNoticias from "./ListadoNoticias";
+import ListadoNoticias from "./ListadoEscenas";
 
-const Noticias = () => {
+const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState("");
 
@@ -21,4 +21,4 @@ const Noticias = () => {
   );
 };
 
-export default Noticias;
+export default Dashboard;
