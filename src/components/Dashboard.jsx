@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Filtros from "./Filtros";
 import Header from "./Header";
-import ListadoNoticias from "./ListadoEscenas";
+import ListadoEscenas from "./ListadoEscenas";
 
 const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -16,7 +16,7 @@ const Dashboard = () => {
         search={search}
         setSearch={setSearch}
       />
-      <ListadoNoticias selectedCategory={selectedCategory} search={search} />
+      <ListadoEscenas selectedCategory={selectedCategory} search={search} />
     </section>
   );
 };
