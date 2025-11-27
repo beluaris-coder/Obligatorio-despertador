@@ -1,4 +1,4 @@
-const HeaderNoticia = (props) => {
+const HeaderEscena = (props) => {
   const { categoria, titulo, tag, fecha } = props;
   return (
     <div className="absolute bottom-4 left-0 right-0 p-4 bg-linear-to-t from-black to-transparent">
@@ -13,4 +13,4 @@ const HeaderNoticia = (props) => {
   );
 };
 
-export default HeaderNoticia;
+export default HeaderEscena;

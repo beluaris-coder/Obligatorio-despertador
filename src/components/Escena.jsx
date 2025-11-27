@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Noticia = (props) => {
+const Escena = (props) => {
   const {
     id,
     titulo,
@@ -13,7 +13,7 @@ const Noticia = (props) => {
   return (
     <Link
       className="flex gap-2 hover:bg-gray-50 rounded-md"
-      to={`/noticia/${id}`}
+      to={`/escena/${id}`}
     >
       <img
         src={img}
@@ -42,4 +42,4 @@ const Noticia = (props) => {
   );
 };
 
-export default Noticia;
+export default Escena;
