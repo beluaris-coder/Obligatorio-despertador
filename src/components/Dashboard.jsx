@@ -1,22 +1,15 @@
 import { useState } from "react";
-import Filtros from "./Filtros";
-import Header from "./Header";
+import Search from "./Shared/Search";
 import ListadoEscenas from "./ListadoEscenas";
 
 const Dashboard = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [search, setSearch] = useState("");
 
   return (
-    <section className="pt-8 px-4 flex flex-col gap-6">
-      <Header />
-      <Filtros
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        search={search}
-        setSearch={setSearch}
-      />
-      <ListadoEscenas selectedCategory={selectedCategory} search={search} />
+    <section className="pt-5 px-4 flex flex-col gap-6">
+      <h1 className="text-xl font-semibold">Dashboard</h1>
+      <Search placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
+      <ListadoEscenas search={search} />
     </section>
   );
 };

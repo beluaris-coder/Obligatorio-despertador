@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { API_URL, otrosDetalles } from "../helpers/constants";
+import { API_URL } from "../helpers/constants";
 import DetallesMedio from "./DetallesMedio";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";

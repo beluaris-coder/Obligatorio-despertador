@@ -1,41 +1,41 @@
 import { API_URL } from "../helpers/constants";
-import Escena from "./Escena";
+import CardEscena from "./CardEscena";
 import Loader from "./Shared/Loader";
 import Message from "./Shared/Message";
 import { useQuery } from "@tanstack/react-query";
 
 const ListadoEscenas = (props) => {
-  const { selectedCategory, search } = props;
+  const { search } = props;
 
   //tanstack query
-  const {data:escenas, isLoading, error} = useQuery({
+  const { data: escenas = [], isLoading, error } = useQuery({
     queryKey: ["escenas", search],
-    queryFn: ()=> fetch(`${API_URL}/search?q=${search}`).then(res => res.json())
-  })
-  
-  const escenasFiltradas = escenas?.posts?.filter(
-    (escenas) => !selectedCategory || escenas.tags[0] === selectedCategory
-  );
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/escenas.json`);
+      if (!res.ok) throw new Error("Error al cargar escenas");
+      const data = await res.json();
+      if (!data) return [];
+      return Object.entries(data).map(([id, value]) => ({ id, ...value }));
+    },
+  });
+
 
   return (
     <>
       {isLoading && <Loader />}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {escenasFiltradas?.map((escena) => (
-          <Escena
-            key={escena.id}
-            id={escena.id}
-            titulo={escena.title}
-            categoria={escena.tags[0]}
-          />
+
+      <article className="flex flex-wrap gap-2 w-full">
+        {escenas.map((escena) => (
+          <div key={escena.id}>
+            <CardEscena id={escena.id} titulo={escena.titulo} />
+          </div>
         ))}
-      </section>
-      {escenasFiltradas?.length === 0 && !error && !isLoading && (
-        <Message variant="info" message="No hay escenas disponibles" />
+      </article>
+
+      {escenas.length === 0 && !error && !isLoading && (
+        <Message variant="info" message="No hay escenas disponibles, agregue una para comenzar" />
       )}
-      {error && (
-        <Message variant="error" message={error.message} />
-      )}
+      {error && <Message variant="error" message={error.message || "Error de carga"} />}
     </>
   );
 };

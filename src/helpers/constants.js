@@ -1,23 +1,9 @@
-export const categories = [
-  "all",
-  "politic",
-  "sport",
-  "education",
-  "games",
-  "technology",
+
+export const API_URL = "https://despertador-6f5a9-default-rtdb.firebaseio.com";
+
+export const IMAGENES_ESCENAS = [
+  "public/img/fondo1.jpg",
+  "public/img/fondo2.jpg",
+  "public/img/fondo3.jpg",
+  "public/img/fondo4.jpg"
 ];
-
-export const otrosDetalles = {
-  media: {
-    nombre: "CNN",
-    img: "https://upload.wikimedia.org/wikipedia/commons/6/66/CNN_International_logo.svg",
-    verificado: true,
-  },
-  tag: "Trending",
-  fecha: "6 hours ago",
-  bannerImg:
-    "https://thecapecurrent.com/wp-content/uploads/2023/07/play-volley.jpg",
-};
-
-
-export const API_URL = "https://dummyjson.com/posts"
