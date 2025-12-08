@@ -12,71 +12,187 @@ const DetalleEscena = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient()
-  const { data: escena, isLoading } = useQuery({
+  const { data: escena, isLoading, error, } = useQuery({
     queryKey: ["escena", id],
-    queryFn: () => fetch(`${API_URL}/${id}`).then(res => res.json())
-  })
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/escenas.json`);
+      if (!res.ok) throw new Error("Error al cargar escena");
+      const data = await res.json();
+      const escenaSeleccionada = data?.[id];
 
-  //eliminar escena
-  const { mutate: eliminarEscena, isPending: isPendingEliminar } = useMutation({
-    mutationFn: () => fetch(`${API_URL}/${id}`, {
-      method: "DELETE"
-    }).then((res) => res.json()),
-    onSuccess: () => navigate("/")
-  })
+      if (!escenaSeleccionada) {
+        throw new Error("Escena no encontrada");
+      }
 
-  //editar escena - marcar como favorito
-  const {
-    //valores, funciones, booleanos
-    mutate: marcarFavorito, isPending: isPendingEditar} = useMutation({
-    //parametro y funcion
-    mutationFn: () => fetch(`${API_URL}/${id}`, {
-      method: "PUT",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        esFav: !escena.esFav,
-      })
-    }).then((res) => res.json()),
-     onSuccess: queryClient.invalidateQueries({queryKey:["escena", id] })
-  })
+      return { id, ...escenaSeleccionada };
+    },
+  });
 
-  if (isLoading) return <Loader />
+  const nombreEscena = escena?.nombre || escena?.titulo || "Escena sin nombre";
+  const descripcion =
+    escena?.descripcion || escena?.body || "Sin descripción";
+  const diasHorarios = escena?.diasHorarios || [];
+  const acciones = escena?.acciones || [];
+  const historial = escena?.historial || [];
 
-  if (!escena && !isLoading) {
+  const handleEjecutar = () => {
+    alert("Escena ejecutada (demo)");
+  };
+
+  const handleEditar = () => {
+    navigate(`/escena/${id}/editar`);
+  };
+
+
+  const { mutate: eliminarEscena, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      await fetch(`${API_URL}/escenas/${id}.json`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["escenas"] });
+      navigate("/");
+    },
+  });
+
+  if (isLoading) return <Loader />;
+
+  if (error) {
     return (
-      <div className="h-screen w-screen flex justify-center items-center">
-        <Message variant="error" message="Escena no encontrada" />
+      <div className="p-4">
+        <Message
+          variant="error"
+          message={error.message || "Error al cargar la escena"}
+        />
       </div>
     );
   }
 
-
   return (
-    <section>
-      <div className="relative">
-        <img
-          src={otrosDetalles.bannerImg}
-          alt="Portada de la escena"
-          className="w-full h-96 object-cover"
-        />
-        <div className="fixed top-2 left-0 w-full flex justify-end gap-2 px-3">
-          <div className="mr-auto">
-            <IconButton onClick={() => navigate(-1)} icon="arrow_back" />
-          </div>
-          <IconButton onClick={() => marcarFavorito()} disabled={isPendingEditar} icon="bookmark" />
-          <IconButton onClick={eliminarEscena} icon="delete" disabled={isPendingEliminar} />
-        </div>
-        <HeaderEscena
-          titulo={escena.title}
-          categoria={escena?.tags?.[0]}
-          {...otrosDetalles}
-        />
-      </div>
+    <section className="p-4 pb-24 flex flex-col gap-4">
+      {/* Header: título + volver */}
+      <header className="flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm text-violet-500 font-medium"
+        >
+          ← Volver
+        </button>
+        <h1 className="text-lg font-semibold text-center flex-1">
+          {nombreEscena}
+        </h1>
+        <span className="w-10" /> {/* para equilibrar el flex */}
+      </header>
 
-      <main className="bg-white text-black p-4 rounded-t-2xl mt-5 relative z-10">
-        <DetallesMedio {...otrosDetalles.media} />
-        <p className="text-sm">{escena.body} </p>
-      </main>
+      {/* Descripción */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-sm font-semibold mb-1">Descripción</h2>
+        <p className="text-sm text-gray-700">{descripcion}</p>
+      </section>
+
+      {/* Días y horarios programados */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-sm font-semibold mb-2">
+          Días y horarios programados
+        </h2>
+        {diasHorarios.length === 0 ? (
+          <p className="text-sm text-gray-500">No hay horarios definidos.</p>
+        ) : (
+          <ul className="text-sm text-gray-700 space-y-1">
+            {diasHorarios.map((item, index) => (
+              <li key={index}>• {item}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Listado de acciones */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-sm font-semibold mb-2">
+          Acciones asociadas a dispositivos
+        </h2>
+        {acciones.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No hay acciones configuradas para esta escena.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {acciones.map((accion, index) => (
+              <li
+                key={index}
+                className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2"
+              >
+                <p className="font-medium">
+                  {accion.dispositivo || "Dispositivo sin nombre"}
+                </p>
+                <p>
+                  Acción:{" "}
+                  <span className="font-medium">
+                    {accion.accion || "Sin acción"}
+                  </span>
+                </p>
+                {accion.detalle && (
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {accion.detalle}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Historial de ejecución */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-sm font-semibold mb-2">Historial de ejecución</h2>
+        {historial.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            Esta escena aún no se ha ejecutado.
+          </p>
+        ) : (
+          <ul className="text-sm text-gray-700 divide-y divide-gray-100">
+            {historial.map((item, index) => (
+              <li key={index} className="py-2 flex justify-between">
+                <div>
+                  <p className="font-medium">{item.fecha}</p>
+                  {item.dia && (
+                    <p className="text-xs text-gray-500">{item.dia}</p>
+                  )}
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 capitalize">
+                  {item.modo || "manual"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Botones de acción */}
+      <section className="mt-2 flex flex-col gap-2">
+        <button
+          onClick={handleEjecutar}
+          className="w-full py-2 rounded-full bg-violet-500 text-white text-sm font-semibold"
+        >
+          Ejecutar escena
+        </button>
+
+        <button
+          onClick={handleEditar}
+          className="w-full py-2 rounded-full border border-violet-200 text-violet-600 text-sm font-semibold"
+        >
+          Editar escena
+        </button>
+
+        <button
+          onClick={() => eliminarEscena()}
+          disabled={isDeleting}
+          className="w-full py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold disabled:opacity-50"
+        >
+          Eliminar escena
+        </button>
+      </section>
     </section>
   );
 };
