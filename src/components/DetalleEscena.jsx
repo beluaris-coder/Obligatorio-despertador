@@ -2,11 +2,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { API_URL } from "../helpers/constants";
-import DetallesMedio from "./DetallesMedio";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
-import IconButton from "./Shared/IconButton";
-import HeaderEscena from "./HeaderEscena";
+
 
 const DetalleEscena = () => {
   const { id } = useParams();
@@ -110,7 +108,7 @@ const DetalleEscena = () => {
       {/* Listado de acciones */}
       <section className="bg-white rounded-xl shadow-sm p-4">
         <h2 className="text-sm font-semibold mb-2">
-          Acciones asociadas a dispositivos
+          Funcionalidades
         </h2>
         {acciones.length === 0 ? (
           <p className="text-sm text-gray-500">
@@ -124,19 +122,26 @@ const DetalleEscena = () => {
                 className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2"
               >
                 <p className="font-medium">
-                  {accion.dispositivo || "Dispositivo sin nombre"}
+                  {accion.funcionalidad
+                    ? accion.funcionalidad.charAt(0).toUpperCase() + accion.funcionalidad.slice(1)
+                    : "Funcionalidad sin nombre"}
                 </p>
-                <p>
-                  Acción:{" "}
-                  <span className="font-medium">
-                    {accion.accion || "Sin acción"}
-                  </span>
-                </p>
-                {accion.detalle && (
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {accion.detalle}
-                  </p>
+
+                {accion.parametros && Object.keys(accion.parametros).length > 0 ? (
+                  <ul className="mt-1 text-xs text-gray-600">
+                    {Object.entries(accion.parametros).map(([param, valor]) => (
+                      <li key={param}>
+                        <strong>
+                          {param.charAt(0).toUpperCase() + param.slice(1)}:
+                        </strong>{" "}
+                        {valor}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-gray-400">Sin parámetros</p>
                 )}
+
               </li>
             ))}
           </ul>
