@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
+import Button from "./Shared/Button";
 
 const DetalleEscena = () => {
   const { id } = useParams();
@@ -139,6 +140,12 @@ const DetalleEscena = () => {
   const capitalizar = (texto) =>
     texto ? texto.charAt(0).toUpperCase() + texto.slice(1) : texto;
 
+
+
+
+
+
+
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
       {/* Header: título + volver */}
@@ -159,11 +166,10 @@ const DetalleEscena = () => {
       <section className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
         <span className="text-xs text-gray-600">Estado actual</span>
         <span
-          className={`text-xs px-2 py-1 rounded-full ${
-            enEjecucion
+          className={`text-xs px-2 py-1 rounded-full ${enEjecucion
               ? "bg-green-100 text-green-700"
               : "bg-gray-100 text-gray-600"
-          }`}
+            }`}
         >
           {enEjecucion ? "En ejecución" : "Detenida"}
         </span>
@@ -213,7 +219,7 @@ const DetalleEscena = () => {
                 </p>
 
                 {accion.parametros &&
-                Object.keys(accion.parametros).length > 0 ? (
+                  Object.keys(accion.parametros).length > 0 ? (
                   <ul className="mt-1 text-xs text-gray-600">
                     {Object.entries(accion.parametros).map(
                       ([param, valor]) => (
@@ -260,42 +266,15 @@ const DetalleEscena = () => {
 
       {/* Botones de acción */}
       <section className="mt-2 flex flex-col gap-2">
-        <button
-          onClick={handleEjecutar}
-          disabled={isExecuting || enEjecucion}
-          className="w-full py-2 rounded-full bg-violet-500 text-white text-sm font-semibold disabled:opacity-60"
-        >
-          {isExecuting
-            ? "Ejecutando..."
-            : enEjecucion
-            ? "Ya está en ejecución"
-            : "Ejecutar escena"}
-        </button>
+        <Button variante="primario" onClick={handleEjecutar} disabled={isExecuting || enEjecucion}
+          label= {isExecuting ? "Ejecutando..." : enEjecucion ? "Ya está en ejecución" : "Ejecutar escena"}/>
 
         {enEjecucion && (
-          <button
-            onClick={handleDetener}
-            disabled={isStopping}
-            className="w-full py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold disabled:opacity-60"
-          >
-            {isStopping ? "Deteniendo..." : "Detener escena"}
-          </button>
-        )}
+          <Button onClick={handleDetener} disabled={isStopping} label={isStopping ? "Deteniendo..." : "Detener escena"} />
+          )}
 
-        <button
-          onClick={handleEditar}
-          className="w-full py-2 rounded-full border border-violet-200 text-violet-600 text-sm font-semibold"
-        >
-          Editar escena
-        </button>
-
-        <button
-          onClick={() => eliminarEscena()}
-          disabled={isDeleting}
-          className="w-full py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold disabled:opacity-50"
-        >
-          Eliminar escena
-        </button>
+        <Button label="Editar escena" variante="secundario" onClick={handleEditar} />
+        <Button label="Eliminar escena" variante="peligro" onClick={eliminarEscena} disabled={isDeleting} />
       </section>
     </section>
   );
