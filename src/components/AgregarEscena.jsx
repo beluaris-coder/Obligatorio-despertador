@@ -18,6 +18,7 @@ const AgregarEscena = () => {
     { funcionalidad: "", parametros: {} },
   ]);
   const [errorLocal, setErrorLocal] = useState("");
+  const [paramErrors, setParamErrors] = useState({});
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -101,9 +102,8 @@ const AgregarEscena = () => {
     funcionalidadID,
     funcionalidadesData
   ) => {
-    // CUIDADO: si no tiene parametros, usamos {}
     const definicion =
-      funcionalidadesData?.[funcionalidadID]?.parametros || {};
+      funcionalidadesData[funcionalidadID]?.parametros || {};
 
     const nuevosParametros = {};
     Object.keys(definicion).forEach((p) => {
@@ -117,9 +117,17 @@ const AgregarEscena = () => {
           : a
       )
     );
+
+    // al cambiar de funcionalidad, limpiamos errores de ese bloque
+    setParamErrors((prev) => {
+      const copia = { ...prev };
+      delete copia[index];
+      return copia;
+    });
   };
 
   const handleChangeAccionParametro = (index, parametro, valor) => {
+    // Actualizamos el valor del parámetro en la acción correspondiente
     setAcciones((prev) =>
       prev.map((accion, i) =>
         i === index
@@ -130,6 +138,48 @@ const AgregarEscena = () => {
           : accion
       )
     );
+
+    // Validación manual (para evitar los popups nativos del navegador)
+    setParamErrors((prev) => {
+      const nuevos = { ...prev };
+      const def =
+        funcionalidades?.[acciones[index]?.funcionalidad]?.parametros?.[
+        parametro
+        ];
+
+      let mensaje = "";
+
+      if (def?.tipo === "number" && valor !== "") {
+        const numero = Number(valor);
+        if (Number.isNaN(numero)) {
+          mensaje = "Debe ser un número válido.";
+        } else {
+          if (typeof def.min === "number" && numero < def.min) {
+            mensaje = `El valor debe ser mayor o igual a ${def.min}.`;
+          } else if (typeof def.max === "number" && numero > def.max) {
+            mensaje = `El valor debe ser menor o igual a ${def.max}.`;
+          }
+        }
+      }
+
+      // si no hay error, borramos la key
+      if (!mensaje) {
+        if (nuevos[index]) {
+          const { [parametro]: _, ...resto } = nuevos[index];
+          nuevos[index] = resto;
+          if (Object.keys(resto).length === 0) {
+            delete nuevos[index];
+          }
+        }
+      } else {
+        nuevos[index] = {
+          ...(nuevos[index] || {}),
+          [parametro]: mensaje,
+        };
+      }
+
+      return nuevos;
+    });
   };
 
   const handleAgregarAccion = () => {
@@ -141,6 +191,11 @@ const AgregarEscena = () => {
 
   const handleEliminarAccion = (index) => {
     setAcciones((prev) => prev.filter((_, i) => i !== index));
+    setParamErrors((prev) => {
+      const copia = { ...prev };
+      delete copia[index];
+      return copia;
+    });
   };
 
   const nextStep = () => {
@@ -162,6 +217,62 @@ const AgregarEscena = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // 1) Validar parámetros de todas las acciones
+    const nuevosErrors = {};
+
+    acciones.forEach((accion, index) => {
+      if (!accion.funcionalidad?.trim()) return; // si no hay funcionalidad, ni lo miro
+
+      const defParams =
+        funcionalidades?.[accion.funcionalidad]?.parametros || {};
+
+      Object.entries(defParams).forEach(([paramID, def]) => {
+        const valor = accion.parametros?.[paramID];
+
+        // ---- obligatorio: no puede estar vacío ----
+        if (valor === "" || valor === undefined || valor === null) {
+          if (!nuevosErrors[index]) nuevosErrors[index] = {};
+          nuevosErrors[index][paramID] = "Este campo es obligatorio.";
+          return;
+        }
+
+        // ---- validaciones extra para números ----
+        if (def.tipo === "number") {
+          const numero = Number(valor);
+
+          if (Number.isNaN(numero)) {
+            if (!nuevosErrors[index]) nuevosErrors[index] = {};
+            nuevosErrors[index][paramID] = "Debe ser un número válido.";
+            return;
+          }
+
+          if (typeof def.min === "number" && numero < def.min) {
+            if (!nuevosErrors[index]) nuevosErrors[index] = {};
+            nuevosErrors[index][paramID] =
+              `El valor debe ser mayor o igual a ${def.min}.`;
+            return;
+          }
+
+          if (typeof def.max === "number" && numero > def.max) {
+            if (!nuevosErrors[index]) nuevosErrors[index] = {};
+            nuevosErrors[index][paramID] =
+              `El valor debe ser menor o igual a ${def.max}.`;
+            return;
+          }
+        }
+      });
+    });
+
+    // actualizamos estado de errores
+    setParamErrors(nuevosErrors);
+
+    // si hay errores, no dejamos guardar
+    if (Object.keys(nuevosErrors).length > 0) {
+      setErrorLocal("Revisá los valores de las funcionalidades.");
+      return;
+    }
+
+    // 2) resto de validaciones (nombre, acciones, etc.)
     const diasHorarios = diasHorariosTexto
       .split("\n")
       .map((t) => t.trim())
@@ -186,6 +297,7 @@ const AgregarEscena = () => {
     setErrorLocal("");
     guardarEscena(escenaAGuardar);
   };
+
 
   if (esEdicion && isLoadingEscena) {
     return (
@@ -242,7 +354,11 @@ const AgregarEscena = () => {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         {/* PASO 1 */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
@@ -315,126 +431,125 @@ const AgregarEscena = () => {
               </p>
             )}
 
-            {acciones.map((accion, index) => {
-              const definicionParametros =
-                funcionalidades?.[accion.funcionalidad]?.parametros || {};
-              const tieneParametros =
-                Object.keys(definicionParametros).length > 0;
-
-              return (
-                <div
-                  key={index}
-                  className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2"
-                >
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-gray-500">
-                      Acción #{index + 1}
-                    </p>
-                    {acciones.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleEliminarAccion(index)}
-                        className="text-xs text-red-500"
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-gray-600">
-                      Funcionalidad
-                    </label>
-
-                    <ListadoFuncionalidades
-                      value={accion.funcionalidad}
-                      onChange={(nuevoValor) =>
-                        handleSeleccionarFuncionalidad(
-                          index,
-                          nuevoValor,
-                          funcionalidades
-                        )
-                      }
-                    />
-
-                    {/* Parámetros dinámicos (solo si hay alguno) */}
-                    {accion.funcionalidad &&
-                      funcionalidades &&
-                      tieneParametros && (
-                        <div className="mt-3 flex flex-col gap-3">
-                          {Object.entries(definicionParametros).map(
-                            ([paramID, def]) => (
-                              <div
-                                key={paramID}
-                                className="flex flex-col gap-1"
-                              >
-                                <label className="text-xs text-gray-600">
-                                  {paramID.charAt(0).toUpperCase() + paramID.slice(1)}
-                                </label>
-
-                                {def.tipo === "number" && (
-                                  <input
-                                    type="number"
-                                    min={def.min}
-                                    max={def.max}
-                                    className="border rounded-lg px-3 py-1.5 text-sm"
-                                    value={accion.parametros?.[paramID] || ""}
-                                    onChange={(e) =>
-                                      handleChangeAccionParametro(
-                                        index,
-                                        paramID,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                )}
-
-                                {def.tipo === "string" && (
-                                  <input
-                                    type="text"
-                                    className="border rounded-lg px-3 py-1.5 text-sm"
-                                    value={accion.parametros?.[paramID] || ""}
-                                    onChange={(e) =>
-                                      handleChangeAccionParametro(
-                                        index,
-                                        paramID,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                )}
-
-                                {def.tipo === "select" && (
-                                  <select
-                                    className="border rounded-lg px-3 py-1.5 text-sm"
-                                    value={accion.parametros?.[paramID] || ""}
-                                    onChange={(e) =>
-                                      handleChangeAccionParametro(
-                                        index,
-                                        paramID,
-                                        e.target.value
-                                      )
-                                    }
-                                  >
-                                    <option value="">
-                                      Seleccioná una opción
-                                    </option>
-                                    {def.valores.map((v) => (
-                                      <option key={v} value={v}>
-                                        {v.charAt(0).toUpperCase() + v.slice(1)}
-                                      </option>
-                                    ))}
-                                  </select>
-                                )}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
-                  </div>
+            {acciones.map((accion, index) => (
+              <div
+                key={index}
+                className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2"
+              >
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-500">
+                    Acción #{index + 1}
+                  </p>
+                  {acciones.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleEliminarAccion(index)}
+                      className="text-xs text-red-500"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </div>
-              );
-            })}
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-600">
+                    Funcionalidad
+                  </label>
+
+                  <ListadoFuncionalidades
+                    value={accion.funcionalidad}
+                    onChange={(nuevoValor) =>
+                      handleSeleccionarFuncionalidad(
+                        index,
+                        nuevoValor,
+                        funcionalidades
+                      )
+                    }
+                  />
+
+                  {/* Parámetros dinámicos */}
+                  {accion.funcionalidad &&
+                    funcionalidades &&
+                    funcionalidades[accion.funcionalidad] && (
+                      <div className="mt-3 flex flex-col gap-3">
+                        {Object.entries(
+                          funcionalidades[accion.funcionalidad].parametros
+                        ).map(([paramID, def]) => (
+                          <div
+                            key={paramID}
+                            className="flex flex-col gap-1"
+                          >
+                            <label className="text-xs text-gray-600">
+                              {paramID.charAt(0).toUpperCase() +
+                                paramID.slice(1)}
+                            </label>
+
+                            {def.tipo === "number" && (
+                              <>
+                                <input
+                                  type="number"
+                                  className="border rounded-lg px-3 py-1.5 text-sm"
+                                  value={accion.parametros?.[paramID] || ""}
+                                  onChange={(e) =>
+                                    handleChangeAccionParametro(
+                                      index,
+                                      paramID,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                {paramErrors[index]?.[paramID] && (
+                                  <p className="text-xs text-red-500 mt-1">
+                                    {paramErrors[index][paramID]}
+                                  </p>
+                                )}
+                              </>
+                            )}
+
+                            {def.tipo === "string" && (
+                              <input
+                                type="text"
+                                className="border rounded-lg px-3 py-1.5 text-sm"
+                                value={accion.parametros?.[paramID] || ""}
+                                onChange={(e) =>
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            )}
+
+                            {def.tipo === "select" && (
+                              <select
+                                className="border rounded-lg px-3 py-1.5 text-sm"
+                                value={accion.parametros?.[paramID] || ""}
+                                onChange={(e) =>
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                <option value="">
+                                  Seleccioná una opción
+                                </option>
+                                {def.valores.map((v) => (
+                                  <option key={v} value={v}>
+                                    {v}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
