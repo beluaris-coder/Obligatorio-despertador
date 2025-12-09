@@ -1,7 +1,7 @@
 const Button = (props) => {
     const { label, variante, onClick, disabled} = props;
 
-    const baseEstilos = "w-full py-2 rounded-full text-sm font-semibold";
+    const baseEstilos = "w-full py-2 rounded-full text-sm font-semibold cursor-pointer";
 
     const estilos =
         variante === "primario" ? "bg-violet-500 text-white"

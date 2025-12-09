@@ -2,7 +2,7 @@ import "./App.css";
 import { Routes, Route, NavLink } from "react-router-dom";
 import { MdAddCircle, MdSettings, MdDashboard } from "react-icons/md";
 import Dashboard from "./components/Dashboard";
-import AgregarEscena from "./components/AgregarEscena";
+import FormEscena from "./components/FormEscena";
 import Config from "./components/Config"
 import NotFound from "./components/NotFound";
 import DetalleEscena from "./components/DetalleEscena";
@@ -15,10 +15,10 @@ function App() {
       <main className="pb-24">
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="agregar" element={<AgregarEscena />} />
+          <Route path="agregar" element={<FormEscena />} />
           <Route path="config" element={<Config />} />
           <Route path="/escena/:id" element={<DetalleEscena />} />
-            <Route path="/escena/:id/editar" element={<AgregarEscena />} /> 
+            <Route path="/escena/:id/editar" element={<FormEscena />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

@@ -1,6 +1,6 @@
 const BloqueLista = ({ titulo, items, mensaje = "No hay datos." }) => {
   return (
-    <section className="bg-white rounded-xl shadow-sm p-4">
+    <article className="bg-white rounded-xl shadow-sm p-4">
       <h2 className="text-sm font-semibold mb-2">{titulo}</h2>
 
       {items.length === 0 ? (
@@ -12,7 +12,7 @@ const BloqueLista = ({ titulo, items, mensaje = "No hay datos." }) => {
           ))}
         </ul>
       )}
-    </section>
+    </article>
   );
 };
 

@@ -23,11 +23,7 @@ const AgregarEscena = () => {
   const queryClient = useQueryClient();
 
   // Escena existente (para edición)
-  const {
-    data: escenaExistente,
-    isLoading: isLoadingEscena,
-    error: errorEscena,
-  } = useQuery({
+  const { data: escenaExistente, isLoading: isLoadingEscena, error: errorEscena } = useQuery({
     enabled: esEdicion,
     queryKey: ["escena", id],
     queryFn: async () => {
@@ -58,7 +54,6 @@ const AgregarEscena = () => {
       setTitulo(escenaExistente.titulo || "");
       setDescripcion(escenaExistente.descripcion || "");
       setDiasHorariosTexto((escenaExistente.diasHorarios || []).join("\n"));
-
       setAcciones(
         escenaExistente.acciones?.length
           ? escenaExistente.acciones.map((a) => ({
@@ -184,7 +179,7 @@ const AgregarEscena = () => {
 
     if (faltanParametros) {
       setErrorLocal(
-        "Completá todos los parámetros de las funcionalidades antes de guardar."
+        "Completá todos los parámetros de las funcionalidades."
       );
       return;
     }
@@ -236,6 +231,8 @@ const AgregarEscena = () => {
       </section>
     );
   }
+
+
 
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
