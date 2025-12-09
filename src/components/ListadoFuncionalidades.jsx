@@ -35,10 +35,7 @@ const ListadoFuncionalidades = (props) => {
 
     if (error) {
         return (
-            <Message
-                variant="error"
-                message={error.message || "Error al cargar funcionalidades"}
-            />
+            <Message variant="error" message={error.message || "Error al cargar funcionalidades"}/>
         );
     }
 

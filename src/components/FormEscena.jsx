@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import ListadoFuncionalidades from "./ListadoFuncionalidades";
+import HeaderForm from "./HeaderForm";
+import InputText from "./Shared/InputTxt";
+import InputTextarea from "./Shared/InputTxtArea";
+import Button from "./Shared/Button";
+import TextButton from "./Shared/TextButton";
 
 const AgregarEscena = () => {
   const { id } = useParams();
@@ -57,9 +63,9 @@ const AgregarEscena = () => {
       setAcciones(
         escenaExistente.acciones?.length
           ? escenaExistente.acciones.map((a) => ({
-              funcionalidad: a.funcionalidad || "",
-              parametros: a.parametros || {},
-            }))
+            funcionalidad: a.funcionalidad || "",
+            parametros: a.parametros || {},
+          }))
           : [{ funcionalidad: "", parametros: {} }]
       );
     }
@@ -118,9 +124,9 @@ const AgregarEscena = () => {
       prev.map((accion, i) =>
         i === index
           ? {
-              ...accion,
-              parametros: { ...accion.parametros, [parametro]: valor },
-            }
+            ...accion,
+            parametros: { ...accion.parametros, [parametro]: valor },
+          }
           : accion
       )
     );
@@ -236,75 +242,36 @@ const AgregarEscena = () => {
 
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
-      <header className="flex items-center justify-between mb-2">
-        <h1 className="text-xl font-semibold">
-          {esEdicion ? "Editar escena" : "Nueva escena"}
-        </h1>
-        <span className="text-xs text-gray-500">
-          Paso {step} de 2
-        </span>
-      </header>
+      <HeaderForm esEdicion={esEdicion} step={step} />
 
-      <div className="flex items-center gap-2 mb-2">
-        <div
-          className={`flex-1 h-1 rounded-full ${
-            step >= 1 ? "bg-violet-400" : "bg-gray-200"
-          }`}
-        />
-        <div
-          className={`flex-1 h-1 rounded-full ${
-            step >= 2 ? "bg-violet-400" : "bg-gray-200"
-          }`}
-        />
-      </div>
-
-      {errorLocal && (
-        <Message variant="error" message={errorLocal} />
-      )}
+      {errorLocal && <Message variant="error" message={errorLocal} />}
 
       {errorFuncionalidades && (
-        <Message
-          variant="error"
-          message={
-            errorFuncionalidades.message || "Error al cargar funcionalidades"
-          }
-        />
+        <Message variant="error" message={errorFuncionalidades.message || "Error al cargar funcionalidades"}/>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* PASO 1 */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
-              <label className="text-sm font-semibold">
-                Nombre de la escena
-              </label>
-              <input
-                type="text"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
-                placeholder="Ej: Despertar suave"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-              />
-            </div>
+
+            <InputText
+              label="Nombre de la escena"
+              placeholder="Ej: Despertar suave"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+            />
+
+            <InputTextarea
+              label="Descripción"
+              placeholder="Ej: Enciende luces y música..."
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              rows={3}
+            />
 
             <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
-              <label className="text-sm font-semibold">
-                Descripción
-              </label>
-              <textarea
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
-                rows={3}
-                placeholder="Ej: Enciende luces y música de manera progresiva."
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-              />
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
-              <label className="text-sm font-semibold">
-                Días y horarios programados
-              </label>
+              <label className="text-sm font-semibold"> Días y horarios programados </label>
               <p className="text-xs text-gray-500 mb-1">
                 Escribí un día y horario por línea. Ej:
                 <br />
@@ -325,129 +292,69 @@ const AgregarEscena = () => {
         {/* PASO 2 */}
         {step === 2 && (
           <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-4">
+            
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold">
-                Acciones de los dispositivos
-              </h2>
-              <button
-                type="button"
-                onClick={handleAgregarAccion}
-                className="text-xs text-violet-600 font-semibold"
-              >
-                + Agregar acción
-              </button>
+              <h2 className="text-sm font-semibold"> Acciones de los dispositivos </h2>
+              <TextButton label="Agregar acción" onClick={handleAgregarAccion} variante="agregar" />
             </div>
 
             {isLoadingFuncionalidades && (
-              <p className="text-xs text-gray-400">
-                Cargando funcionalidades...
-              </p>
+              <p className="text-xs text-gray-400"> Cargando funcionalidades... </p>
             )}
 
             {acciones.map((accion, index) => (
-              <div
-                key={index}
-                className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2"
-              >
+              <div key={index} className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2">
+                
                 <div className="flex justify-between items-center">
-                  <p className="text-xs text-gray-500">
-                    Acción #{index + 1}
-                  </p>
+                  <p className="text-xs text-gray-500"> Acción #{index + 1} </p>
                   {acciones.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleEliminarAccion(index)}
-                      className="text-xs text-red-500"
-                    >
-                      Eliminar
-                    </button>
+                    <TextButton label="Eliminar" variante="eliminar" onClick={() => handleEliminarAccion(index)}/>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-600">
-                    Funcionalidad
-                  </label>
-
+                  <label className="text-xs text-gray-600"> Funcionalidad </label>
                   <ListadoFuncionalidades
                     value={accion.funcionalidad}
                     onChange={(nuevoValor) =>
-                      handleSeleccionarFuncionalidad(
-                        index,
-                        nuevoValor,
-                        funcionalidades
-                      )
+                      handleSeleccionarFuncionalidad( index, nuevoValor, funcionalidades )
                     }
                   />
 
                   {/* Parámetros dinámicos */}
-                  {accion.funcionalidad &&
-                    funcionalidades &&
-                    funcionalidades[accion.funcionalidad] && (
+                  {accion.funcionalidad && funcionalidades && funcionalidades[accion.funcionalidad] && (
                       <div className="mt-3 flex flex-col gap-3">
-                        {Object.entries(
-                          funcionalidades[accion.funcionalidad].parametros
-                        ).map(([paramID, def]) => (
-                          <div
-                            key={paramID}
-                            className="flex flex-col gap-1"
-                          >
-                            <label className="text-xs text-gray-600">
-                              {paramID.charAt(0).toUpperCase() +
-                                paramID.slice(1)}
-                            </label>
-
+                        {Object.entries( funcionalidades[accion.funcionalidad].parametros ).map(([paramID, def]) => (
+                          <div key={paramID} className="flex flex-col gap-1">
+                            <label className="text-xs text-gray-600"> {paramID.charAt(0).toUpperCase() + paramID.slice(1)} </label>
                             {def.tipo === "number" && (
-                              <input
-                                type="number"
-                                min={def.min}
-                                max={def.max}
+                              <input type="number" min={def.min} max={def.max}
                                 className="border rounded-lg px-3 py-1.5 text-sm"
                                 value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro(
-                                    index,
-                                    paramID,
-                                    e.target.value
-                                  )
+                                  handleChangeAccionParametro( index, paramID, e.target.value )
                                 }
                               />
                             )}
 
                             {def.tipo === "string" && (
-                              <input
-                                type="text"
-                                className="border rounded-lg px-3 py-1.5 text-sm"
+                              <input type="text" className="border rounded-lg px-3 py-1.5 text-sm"
                                 value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro(
-                                    index,
-                                    paramID,
-                                    e.target.value
-                                  )
+                                  handleChangeAccionParametro( index, paramID, e.target.value )
                                 }
                               />
                             )}
 
                             {def.tipo === "select" && (
-                              <select
-                                className="border rounded-lg px-3 py-1.5 text-sm"
-                                value={accion.parametros?.[paramID] || ""}
+                              <select className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro(
-                                    index,
-                                    paramID,
-                                    e.target.value
-                                  )
+                                  handleChangeAccionParametro( index, paramID, e.target.value)
                                 }
-                              >
-                                <option value="">
-                                  Seleccioná una opción
-                                </option>
+                                >
+                                <option value=""> Seleccioná una opción </option>
                                 {def.valores.map((v) => (
-                                  <option key={v} value={v}>
-                                    {v}
-                                  </option>
+                                  <option key={v} value={v}> {v} </option>
                                 ))}
                               </select>
                             )}
@@ -456,6 +363,7 @@ const AgregarEscena = () => {
                       </div>
                     )}
                 </div>
+
               </div>
             ))}
           </div>
@@ -464,39 +372,23 @@ const AgregarEscena = () => {
         {/* BOTONES */}
         <div className="flex gap-2 mt-2">
           {step > 1 && (
-            <button
-              type="button"
-              onClick={prevStep}
-              className="flex-1 py-2 rounded-full border border-gray-200 text-sm"
-            >
-              Volver
-            </button>
+            <Button label="Volver" onClick={prevStep} variante="secundario" type="button" />
           )}
 
           {step < 2 && (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="flex-1 py-2 rounded-full bg-violet-500 text-white text-sm font-semibold"
-            >
-              Siguiente
-            </button>
+            <Button label="Siguiente" onClick={nextStep} variante="primario" type="button" />
           )}
 
           {step === 2 && (
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex-1 py-2 rounded-full bg-violet-500 text-white text-sm font-semibold disabled:opacity-50"
-            >
-              {isPending
-                ? esEdicion
-                  ? "Guardando cambios..."
-                  : "Guardando..."
-                : esEdicion
-                ? "Guardar cambios"
-                : "Guardar escena"}
-            </button>
+            <Button type="submit" disabled={isPending} variante="primario"
+              label={
+                isPending
+                  ? esEdicion
+                    ? "Guardando cambios..." : "Guardando..."
+                  : esEdicion
+                    ? "Guardar cambios" : "Guardar escena"
+              }
+            />
           )}
         </div>
       </form>

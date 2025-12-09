@@ -5,7 +5,7 @@ import { API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import Button from "./Shared/Button";
-import BackButton from "./Shared/BackButton";
+import TextButton from "./Shared/TextButton";
 import BloqueHistorial from "./BloqueHistorial";
 import BloqueEstado from "./BloqueEstado";
 import BloqueTexto from "./BloqueTexto";
@@ -111,7 +111,7 @@ const DetalleEscena = () => {
     <section className="p-4 pb-24 flex flex-col gap-4">
 
       <header className="flex items-center justify-between">
-        <BackButton label="Volver" onClick={() => navigate(-1)} />
+        <TextButton label="Volver" onClick={() => navigate(-1)} variante="volver" />
         <h1 className="text-lg font-semibold text-center flex-1">{nombreEscena}</h1>
         <span className="w-10" />
       </header>

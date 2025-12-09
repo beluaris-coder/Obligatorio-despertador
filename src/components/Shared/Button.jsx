@@ -1,5 +1,5 @@
 const Button = (props) => {
-    const { label, variante, onClick, disabled} = props;
+    const { label, variante, onClick, disabled, type} = props;
 
     const baseEstilos = "w-full py-2 rounded-full text-sm font-semibold cursor-pointer";
 
@@ -11,6 +11,7 @@ const Button = (props) => {
 
     return (
         <button
+            type={type}
             className={baseEstilos + " " + estilos} //el espacio es para que no queden pegadas las clases
             onClick={onClick}
             disabled={disabled}
