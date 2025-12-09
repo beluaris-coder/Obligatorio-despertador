@@ -9,7 +9,6 @@ const Search = (props) => {
         value={value}
         className=" focus-visible:outline-hidden bg-transparent grow"
       />
-      <span className="material-symbols-rounded">tune</span>
     </div>
   );
 };
