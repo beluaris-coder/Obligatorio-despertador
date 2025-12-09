@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { API_URL } from "../helpers/constants";
+import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import ListadoFuncionalidades from "./ListadoFuncionalidades";
@@ -202,7 +202,7 @@ const AgregarEscena = () => {
       };
     } else {
       // Nueva escena: generar imagenIndex aleatorio UNA sola vez
-      const imagenIndex = Math.floor(Math.random() * 1000);
+      const imagenIndex = Math.floor(Math.random() * IMAGENES_ESCENAS.length);
 
       escenaAGuardar = {
         titulo: titulo.trim(),

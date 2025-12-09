@@ -7,6 +7,9 @@ import Loader from "./Shared/Loader";
 import Button from "./Shared/Button";
 import BackButton from "./Shared/BackButton";
 import Pill from "./Shared/Pill";
+import BloqueEstado from "./BloqueEstado";
+import BloqueTexto from "./BloqueTexto";
+import BloqueLista from "./BloqueLista";
 
 const DetalleEscena = () => {
   const { id } = useParams();
@@ -41,7 +44,7 @@ const DetalleEscena = () => {
   const historial = escena?.historial || [];
   const enEjecucion = escena?.enEjecucion || false;
 
-  // 👉 Ejecutar escena: agrega al historial + marca enEjecucion = true
+  // Ejecutar escena: agrega al historial + marca enEjecucion = true
   const { mutate: ejecutarEscena, isPending: isExecuting } = useMutation({
     mutationFn: async () => {
       const ahora = new Date();
@@ -85,7 +88,7 @@ const DetalleEscena = () => {
     },
   });
 
-  // 👉 Detener escena: solo enEjecucion = false
+  // Detener escena: solo enEjecucion = false
   const { mutate: detenerEscena, isPending: isStopping } = useMutation({
     mutationFn: async () => {
       await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -145,9 +148,6 @@ const DetalleEscena = () => {
 
 
 
-
-
-
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
 
@@ -157,33 +157,22 @@ const DetalleEscena = () => {
         <span className="w-10" />
       </header>
 
-      {/* Estado actual */}
-      <section className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
-        <span className="text-xs text-gray-600">Estado actual</span>
-        <Pill label={enEjecucion ? "En ejecución" : "Detenida"} variante={enEjecucion ? "success" : "neutral"} />
-      </section>
+      <BloqueEstado
+        titulo="Estado actual"
+        pillLabel={enEjecucion ? "En ejecución" : "Detenida"}
+        pillVariante={enEjecucion ? "success" : "neutral"}
+      />
 
-      {/* Descripción */}
-      <section className="bg-white rounded-xl shadow-sm p-4">
-        <h2 className="text-sm font-semibold mb-1">Descripción</h2>
-        <p className="text-sm text-gray-700">{descripcion}</p>
-      </section>
+      <BloqueTexto
+        titulo="Descripción"
+        texto={descripcion}
+      />
 
-      {/* Días y horarios programados */}
-      <section className="bg-white rounded-xl shadow-sm p-4">
-        <h2 className="text-sm font-semibold mb-2">
-          Días y horarios programados
-        </h2>
-        {diasHorarios.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay horarios definidos.</p>
-        ) : (
-          <ul className="text-sm text-gray-700 space-y-1">
-            {diasHorarios.map((item, index) => (
-              <li key={index}>• {item}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <BloqueLista
+        titulo="Días y horarios programados"
+        items={diasHorarios}
+        mensaje="No hay horarios definidos."
+      />
 
       {/* Listado de acciones */}
       <section className="bg-white rounded-xl shadow-sm p-4">
@@ -193,14 +182,8 @@ const DetalleEscena = () => {
         ) : (
           <ul className="space-y-2">
             {acciones.map((accion, index) => (
-              <li
-                key={index}
-                className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2"
-              >
-                <p className="font-medium">
-                  {capitalizar(accion.funcionalidad) ||
-                    "Funcionalidad sin nombre"}
-                </p>
+              <li key={index} className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2">
+                <p className="font-medium">{capitalizar(accion.funcionalidad)}</p>
 
                 {accion.parametros &&
                   Object.keys(accion.parametros).length > 0 ? (
@@ -226,9 +209,7 @@ const DetalleEscena = () => {
       <section className="bg-white rounded-xl shadow-sm p-4">
         <h2 className="text-sm font-semibold mb-2">Historial de ejecución</h2>
         {historial.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            Esta escena aún no se ha ejecutado.
-          </p>
+          <p className="text-sm text-gray-500"> Esta escena aún no se ha ejecutado.</p>
         ) : (
           <ul className="text-sm text-gray-700 divide-y divide-gray-100">
             {historial.map((item, index) => (
@@ -239,7 +220,7 @@ const DetalleEscena = () => {
                     <p className="text-xs text-gray-500">{item.dia}</p>
                   )}
                 </div>
-                <Pill label={item.modo || "manual"}/>
+                <Pill label={item.modo} />
               </li>
             ))}
           </ul>
