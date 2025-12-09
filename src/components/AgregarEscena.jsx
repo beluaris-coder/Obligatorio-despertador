@@ -18,7 +18,6 @@ const AgregarEscena = () => {
     { funcionalidad: "", parametros: {} },
   ]);
   const [errorLocal, setErrorLocal] = useState("");
-  const [paramErrors, setParamErrors] = useState({});
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -63,9 +62,9 @@ const AgregarEscena = () => {
       setAcciones(
         escenaExistente.acciones?.length
           ? escenaExistente.acciones.map((a) => ({
-            funcionalidad: a.funcionalidad || "",
-            parametros: a.parametros || {},
-          }))
+              funcionalidad: a.funcionalidad || "",
+              parametros: a.parametros || {},
+            }))
           : [{ funcionalidad: "", parametros: {} }]
       );
     }
@@ -103,7 +102,7 @@ const AgregarEscena = () => {
     funcionalidadesData
   ) => {
     const definicion =
-      funcionalidadesData[funcionalidadID]?.parametros || {};
+      funcionalidadesData?.[funcionalidadID]?.parametros || {};
 
     const nuevosParametros = {};
     Object.keys(definicion).forEach((p) => {
@@ -117,69 +116,19 @@ const AgregarEscena = () => {
           : a
       )
     );
-
-    // al cambiar de funcionalidad, limpiamos errores de ese bloque
-    setParamErrors((prev) => {
-      const copia = { ...prev };
-      delete copia[index];
-      return copia;
-    });
   };
 
   const handleChangeAccionParametro = (index, parametro, valor) => {
-    // Actualizamos el valor del parámetro en la acción correspondiente
     setAcciones((prev) =>
       prev.map((accion, i) =>
         i === index
           ? {
-            ...accion,
-            parametros: { ...accion.parametros, [parametro]: valor },
-          }
+              ...accion,
+              parametros: { ...accion.parametros, [parametro]: valor },
+            }
           : accion
       )
     );
-
-    // Validación manual (para evitar los popups nativos del navegador)
-    setParamErrors((prev) => {
-      const nuevos = { ...prev };
-      const def =
-        funcionalidades?.[acciones[index]?.funcionalidad]?.parametros?.[
-        parametro
-        ];
-
-      let mensaje = "";
-
-      if (def?.tipo === "number" && valor !== "") {
-        const numero = Number(valor);
-        if (Number.isNaN(numero)) {
-          mensaje = "Debe ser un número válido.";
-        } else {
-          if (typeof def.min === "number" && numero < def.min) {
-            mensaje = `El valor debe ser mayor o igual a ${def.min}.`;
-          } else if (typeof def.max === "number" && numero > def.max) {
-            mensaje = `El valor debe ser menor o igual a ${def.max}.`;
-          }
-        }
-      }
-
-      // si no hay error, borramos la key
-      if (!mensaje) {
-        if (nuevos[index]) {
-          const { [parametro]: _, ...resto } = nuevos[index];
-          nuevos[index] = resto;
-          if (Object.keys(resto).length === 0) {
-            delete nuevos[index];
-          }
-        }
-      } else {
-        nuevos[index] = {
-          ...(nuevos[index] || {}),
-          [parametro]: mensaje,
-        };
-      }
-
-      return nuevos;
-    });
   };
 
   const handleAgregarAccion = () => {
@@ -191,11 +140,6 @@ const AgregarEscena = () => {
 
   const handleEliminarAccion = (index) => {
     setAcciones((prev) => prev.filter((_, i) => i !== index));
-    setParamErrors((prev) => {
-      const copia = { ...prev };
-      delete copia[index];
-      return copia;
-    });
   };
 
   const nextStep = () => {
@@ -217,62 +161,6 @@ const AgregarEscena = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 1) Validar parámetros de todas las acciones
-    const nuevosErrors = {};
-
-    acciones.forEach((accion, index) => {
-      if (!accion.funcionalidad?.trim()) return; // si no hay funcionalidad, ni lo miro
-
-      const defParams =
-        funcionalidades?.[accion.funcionalidad]?.parametros || {};
-
-      Object.entries(defParams).forEach(([paramID, def]) => {
-        const valor = accion.parametros?.[paramID];
-
-        // ---- obligatorio: no puede estar vacío ----
-        if (valor === "" || valor === undefined || valor === null) {
-          if (!nuevosErrors[index]) nuevosErrors[index] = {};
-          nuevosErrors[index][paramID] = "Este campo es obligatorio.";
-          return;
-        }
-
-        // ---- validaciones extra para números ----
-        if (def.tipo === "number") {
-          const numero = Number(valor);
-
-          if (Number.isNaN(numero)) {
-            if (!nuevosErrors[index]) nuevosErrors[index] = {};
-            nuevosErrors[index][paramID] = "Debe ser un número válido.";
-            return;
-          }
-
-          if (typeof def.min === "number" && numero < def.min) {
-            if (!nuevosErrors[index]) nuevosErrors[index] = {};
-            nuevosErrors[index][paramID] =
-              `El valor debe ser mayor o igual a ${def.min}.`;
-            return;
-          }
-
-          if (typeof def.max === "number" && numero > def.max) {
-            if (!nuevosErrors[index]) nuevosErrors[index] = {};
-            nuevosErrors[index][paramID] =
-              `El valor debe ser menor o igual a ${def.max}.`;
-            return;
-          }
-        }
-      });
-    });
-
-    // actualizamos estado de errores
-    setParamErrors(nuevosErrors);
-
-    // si hay errores, no dejamos guardar
-    if (Object.keys(nuevosErrors).length > 0) {
-      setErrorLocal("Revisá los valores de las funcionalidades.");
-      return;
-    }
-
-    // 2) resto de validaciones (nombre, acciones, etc.)
     const diasHorarios = diasHorariosTexto
       .split("\n")
       .map((t) => t.trim())
@@ -287,17 +175,48 @@ const AgregarEscena = () => {
       return;
     }
 
-    const escenaAGuardar = {
-      titulo: titulo.trim(),
-      descripcion: descripcion.trim(),
-      diasHorarios,
-      acciones: accionesLimpias,
-    };
+    // Validar que todos los parámetros estén completos
+    const faltanParametros = accionesLimpias.some((a) =>
+      Object.values(a.parametros || {}).some(
+        (v) => v === "" || v === null || v === undefined
+      )
+    );
+
+    if (faltanParametros) {
+      setErrorLocal(
+        "Completá todos los parámetros de las funcionalidades antes de guardar."
+      );
+      return;
+    }
+
+    let escenaAGuardar;
+
+    if (esEdicion && escenaExistente) {
+      // Conservar campos existentes (como imagenIndex, historial, enEjecucion)
+      escenaAGuardar = {
+        ...escenaExistente,
+        titulo: titulo.trim(),
+        descripcion: descripcion.trim(),
+        diasHorarios,
+        acciones: accionesLimpias,
+      };
+    } else {
+      // Nueva escena: generar imagenIndex aleatorio UNA sola vez
+      const imagenIndex = Math.floor(Math.random() * 1000);
+
+      escenaAGuardar = {
+        titulo: titulo.trim(),
+        descripcion: descripcion.trim(),
+        diasHorarios,
+        acciones: accionesLimpias,
+        imagenIndex,
+        enEjecucion: false,
+      };
+    }
 
     setErrorLocal("");
     guardarEscena(escenaAGuardar);
   };
-
 
   if (esEdicion && isLoadingEscena) {
     return (
@@ -331,12 +250,14 @@ const AgregarEscena = () => {
 
       <div className="flex items-center gap-2 mb-2">
         <div
-          className={`flex-1 h-1 rounded-full ${step >= 1 ? "bg-violet-400" : "bg-gray-200"
-            }`}
+          className={`flex-1 h-1 rounded-full ${
+            step >= 1 ? "bg-violet-400" : "bg-gray-200"
+          }`}
         />
         <div
-          className={`flex-1 h-1 rounded-full ${step >= 2 ? "bg-violet-400" : "bg-gray-200"
-            }`}
+          className={`flex-1 h-1 rounded-full ${
+            step >= 2 ? "bg-violet-400" : "bg-gray-200"
+          }`}
         />
       </div>
 
@@ -348,17 +269,12 @@ const AgregarEscena = () => {
         <Message
           variant="error"
           message={
-            errorFuncionalidades.message ||
-            "Error al cargar funcionalidades"
+            errorFuncionalidades.message || "Error al cargar funcionalidades"
           }
         />
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="flex flex-col gap-4"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* PASO 1 */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
@@ -485,25 +401,20 @@ const AgregarEscena = () => {
                             </label>
 
                             {def.tipo === "number" && (
-                              <>
-                                <input
-                                  type="number"
-                                  className="border rounded-lg px-3 py-1.5 text-sm"
-                                  value={accion.parametros?.[paramID] || ""}
-                                  onChange={(e) =>
-                                    handleChangeAccionParametro(
-                                      index,
-                                      paramID,
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                {paramErrors[index]?.[paramID] && (
-                                  <p className="text-xs text-red-500 mt-1">
-                                    {paramErrors[index][paramID]}
-                                  </p>
-                                )}
-                              </>
+                              <input
+                                type="number"
+                                min={def.min}
+                                max={def.max}
+                                className="border rounded-lg px-3 py-1.5 text-sm"
+                                value={accion.parametros?.[paramID] || ""}
+                                onChange={(e) =>
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
+                                }
+                              />
                             )}
 
                             {def.tipo === "string" && (
@@ -586,8 +497,8 @@ const AgregarEscena = () => {
                   ? "Guardando cambios..."
                   : "Guardando..."
                 : esEdicion
-                  ? "Guardar cambios"
-                  : "Guardar escena"}
+                ? "Guardar cambios"
+                : "Guardar escena"}
             </button>
           )}
         </div>

@@ -5,7 +5,7 @@ import Message from "./Shared/Message";
 import { useQuery } from "@tanstack/react-query";
 
 const ListadoEscenas = (props) => {
-  const search = props.search;
+  const search = props.search || "";
 
   const {
     data: escenas = [],
@@ -30,7 +30,10 @@ const ListadoEscenas = (props) => {
       )
     : escenas;
 
-  // Clasificación
+  // Clasificación simple:
+  // - enEjecucion === true  -> En ejecución
+  // - !enEjecucion && tiene diasHorarios -> Próximas
+  // - !enEjecucion && !tiene diasHorarios -> Sin programar (inactivas)
   const escenasEnEjecucion = escenasFiltradas.filter(
     (e) => e.enEjecucion === true
   );
@@ -66,7 +69,11 @@ const ListadoEscenas = (props) => {
               <article className="flex flex-wrap gap-2 w-full">
                 {escenasEnEjecucion.map((escena) => (
                   <div key={escena.id}>
-                    <CardEscena id={escena.id} titulo={escena.titulo} />
+                    <CardEscena
+                      id={escena.id}
+                      titulo={escena.titulo}
+                      imagenIndex={escena.imagenIndex}
+                    />
                   </div>
                 ))}
               </article>
@@ -86,14 +93,18 @@ const ListadoEscenas = (props) => {
               <article className="flex flex-wrap gap-2 w-full">
                 {escenasProximas.map((escena) => (
                   <div key={escena.id}>
-                    <CardEscena id={escena.id} titulo={escena.titulo} />
+                    <CardEscena
+                      id={escena.id}
+                      titulo={escena.titulo}
+                      imagenIndex={escena.imagenIndex}
+                    />
                   </div>
                 ))}
               </article>
             )}
           </section>
 
-          {/* No ejecutadas */}
+          {/* No ejecutadas / inactivas */}
           <section>
             <h2 className="text-sm font-semibold mb-2">
               Escenas sin programar
@@ -106,7 +117,11 @@ const ListadoEscenas = (props) => {
               <article className="flex flex-wrap gap-2 w-full">
                 {escenasNoEjecutadas.map((escena) => (
                   <div key={escena.id}>
-                    <CardEscena id={escena.id} titulo={escena.titulo} />
+                    <CardEscena
+                      id={escena.id}
+                      titulo={escena.titulo}
+                      imagenIndex={escena.imagenIndex}
+                    />
                   </div>
                 ))}
               </article>
