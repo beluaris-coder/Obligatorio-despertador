@@ -1,15 +1,18 @@
 const Pill = (props) => {
-  const { label, onClick, selected } = props;
+  const { label, variante } = props;
+
+  const baseEstilos =
+    "text-xs px-2 py-1 rounded-full capitalize";
+
+  const estilos =
+    variante === "success" ? "bg-green-100 text-green-700"
+      : variante === "neutral" ? "bg-gray-100 text-gray-600"
+      : "bg-violet-100 text-violet-700";
 
   return (
-    <button
-      className={`rounded-full cursor-pointer py-2 px-4 text-xs capitalize ${
-        selected ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"
-      }`}
-      onClick={onClick}
-    >
+    <span className={baseEstilos + " " + estilos}>
       {label}
-    </button>
+    </span>
   );
 };
 

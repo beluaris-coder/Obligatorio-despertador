@@ -5,6 +5,8 @@ import { API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import Button from "./Shared/Button";
+import BackButton from "./Shared/BackButton";
+import Pill from "./Shared/Pill";
 
 const DetalleEscena = () => {
   const { id } = useParams();
@@ -148,31 +150,17 @@ const DetalleEscena = () => {
 
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
-      {/* Header: título + volver */}
+
       <header className="flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-sm text-violet-500 font-medium"
-        >
-          ← Volver
-        </button>
-        <h1 className="text-lg font-semibold text-center flex-1">
-          {nombreEscena}
-        </h1>
-        <span className="w-10" /> {/* para equilibrar el flex */}
+        <BackButton label="Volver" onClick={() => navigate(-1)} />
+        <h1 className="text-lg font-semibold text-center flex-1">{nombreEscena}</h1>
+        <span className="w-10" />
       </header>
 
       {/* Estado actual */}
       <section className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between">
         <span className="text-xs text-gray-600">Estado actual</span>
-        <span
-          className={`text-xs px-2 py-1 rounded-full ${enEjecucion
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-100 text-gray-600"
-            }`}
-        >
-          {enEjecucion ? "En ejecución" : "Detenida"}
-        </span>
+        <Pill label={enEjecucion ? "En ejecución" : "Detenida"} variante={enEjecucion ? "success" : "neutral"} />
       </section>
 
       {/* Descripción */}
@@ -199,13 +187,9 @@ const DetalleEscena = () => {
 
       {/* Listado de acciones */}
       <section className="bg-white rounded-xl shadow-sm p-4">
-        <h2 className="text-sm font-semibold mb-2">
-          Acciones asociadas al cubito
-        </h2>
+        <h2 className="text-sm font-semibold mb-2"> Acciones asociadas al cubito </h2>
         {acciones.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No hay acciones configuradas para esta escena.
-          </p>
+          <p className="text-sm text-gray-500"> No hay acciones configuradas para esta escena. </p>
         ) : (
           <ul className="space-y-2">
             {acciones.map((accion, index) => (
@@ -255,9 +239,7 @@ const DetalleEscena = () => {
                     <p className="text-xs text-gray-500">{item.dia}</p>
                   )}
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 capitalize">
-                  {item.modo || "manual"}
-                </span>
+                <Pill label={item.modo || "manual"}/>
               </li>
             ))}
           </ul>
@@ -267,11 +249,11 @@ const DetalleEscena = () => {
       {/* Botones de acción */}
       <section className="mt-2 flex flex-col gap-2">
         <Button variante="primario" onClick={handleEjecutar} disabled={isExecuting || enEjecucion}
-          label= {isExecuting ? "Ejecutando..." : enEjecucion ? "Ya está en ejecución" : "Ejecutar escena"}/>
+          label={isExecuting ? "Ejecutando..." : enEjecucion ? "Ya está en ejecución" : "Ejecutar escena"} />
 
         {enEjecucion && (
           <Button onClick={handleDetener} disabled={isStopping} label={isStopping ? "Deteniendo..." : "Detener escena"} />
-          )}
+        )}
 
         <Button label="Editar escena" variante="secundario" onClick={handleEditar} />
         <Button label="Eliminar escena" variante="peligro" onClick={eliminarEscena} disabled={isDeleting} />

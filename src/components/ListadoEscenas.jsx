@@ -1,5 +1,5 @@
 import { API_URL } from "../helpers/constants";
-import CardEscena from "./CardEscena";
+import SeccionEscenaDash from "./SeccionEscenaDash";
 import Loader from "./Shared/Loader";
 import Message from "./Shared/Message";
 import { useQuery } from "@tanstack/react-query";
@@ -26,8 +26,8 @@ const ListadoEscenas = (props) => {
 
   const escenasFiltradas = normalizado
     ? escenas.filter((escena) =>
-        escena.titulo?.toLowerCase().includes(normalizado)
-      )
+      escena.titulo?.toLowerCase().includes(normalizado)
+    )
     : escenas;
 
   // Clasificación simple:
@@ -50,83 +50,31 @@ const ListadoEscenas = (props) => {
     return !e.enEjecucion && !tieneHorarios;
   });
 
+
+
   return (
     <>
       {isLoading && <Loader />}
 
       {!isLoading && !error && escenasFiltradas.length > 0 && (
         <div className="flex flex-col gap-6 w-full">
-          {/* En ejecución */}
-          <section>
-            <h2 className="text-sm font-semibold mb-2">
-              Escenas en ejecución
-            </h2>
-            {escenasEnEjecucion.length === 0 ? (
-              <p className="text-xs text-gray-500">
-                No hay escenas ejecutándose en este momento.
-              </p>
-            ) : (
-              <article className="flex flex-wrap gap-2 w-full">
-                {escenasEnEjecucion.map((escena) => (
-                  <div key={escena.id}>
-                    <CardEscena
-                      id={escena.id}
-                      titulo={escena.titulo}
-                      imagenIndex={escena.imagenIndex}
-                    />
-                  </div>
-                ))}
-              </article>
-            )}
-          </section>
+          <SeccionEscenaDash
+            tituloSeccion="Escenas en ejecución"
+            tipoEscena={escenasEnEjecucion}
+            mensaje="No hay escenas ejecutándose en este momento."
+          />
 
-          {/* Próximas a ejecutarse */}
-          <section>
-            <h2 className="text-sm font-semibold mb-2">
-              Próximas a ejecutarse
-            </h2>
-            {escenasProximas.length === 0 ? (
-              <p className="text-xs text-gray-500">
-                No hay escenas programadas para ejecutarse.
-              </p>
-            ) : (
-              <article className="flex flex-wrap gap-2 w-full">
-                {escenasProximas.map((escena) => (
-                  <div key={escena.id}>
-                    <CardEscena
-                      id={escena.id}
-                      titulo={escena.titulo}
-                      imagenIndex={escena.imagenIndex}
-                    />
-                  </div>
-                ))}
-              </article>
-            )}
-          </section>
+          <SeccionEscenaDash
+            tituloSeccion="Próximas a ejecutarse"
+            tipoEscena={escenasProximas}
+            mensaje="No hay escenas programadas para ejecutarse."
+          />
 
-          {/* No ejecutadas / inactivas */}
-          <section>
-            <h2 className="text-sm font-semibold mb-2">
-              Escenas sin programar
-            </h2>
-            {escenasNoEjecutadas.length === 0 ? (
-              <p className="text-xs text-gray-500">
-                Todas tus escenas están en ejecución o programadas.
-              </p>
-            ) : (
-              <article className="flex flex-wrap gap-2 w-full">
-                {escenasNoEjecutadas.map((escena) => (
-                  <div key={escena.id}>
-                    <CardEscena
-                      id={escena.id}
-                      titulo={escena.titulo}
-                      imagenIndex={escena.imagenIndex}
-                    />
-                  </div>
-                ))}
-              </article>
-            )}
-          </section>
+          <SeccionEscenaDash
+            tituloSeccion="Escenas sin programar"
+            tipoEscena={escenasNoEjecutadas}
+            mensaje="Todas tus escenas están en ejecución o programadas."
+          />
         </div>
       )}
 
