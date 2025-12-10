@@ -4,7 +4,7 @@ import  IconButton from "./Shared/IconButton";
 
 const iconosPorAccion = {
   luz: (
-    <IconButton variante="small" icon={FaLightbulb} />
+    <IconButton variante="small" icon={FaLightbulb} bgColor="bg-yellow-50" textColor="text-yellow-500" />
   ),
   musica: (
     <IconButton variante="small" icon={FaMusic} />

@@ -1,13 +1,10 @@
 
 import { useState } from "react";
+import IconButton from "../components/Shared/IconButton";
 import { MdChevronRight } from "react-icons/md";
 
-const BloqueRowConfig = ({
-  icon: Icon,
-  titulo,
-  subtitulo,
-  tieneToggle = false,
-}) => {
+
+const BloqueRowConfig = ({ icon: Icon, titulo, subtitulo, tieneToggle = false }) => {
   const [activo, setActivo] = useState(false);
 
   const handleToggleClick = (e) => {
@@ -22,9 +19,7 @@ const BloqueRowConfig = ({
     >
       <div className="flex items-center gap-3">
         {Icon && (
-          <span className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-violet-500">
-            <Icon className="w-4 h-4" />
-          </span>
+          <IconButton icon={Icon} variante="medium"/>
         )}
 
         <div>
@@ -37,14 +32,12 @@ const BloqueRowConfig = ({
         {tieneToggle ? (
           <div
             onClick={handleToggleClick}
-            className={`w-9 h-5 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${
-              activo ? "bg-violet-500" : "bg-gray-300"
-            }`}
+            className={`w-9 h-5 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${activo ? "bg-violet-500" : "bg-gray-300"
+              }`}
           >
             <div
-              className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                activo ? "translate-x-4" : ""
-              }`}
+              className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${activo ? "translate-x-4" : ""
+                }`}
             />
           </div>
         ) : (
