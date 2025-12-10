@@ -23,11 +23,7 @@ const FormEscena = () => {
   const { addEscena, updateEscena } = useEscenasStore();
 
   // Escena existente (para edición)
-  const {
-    data: escenaExistente,
-    isLoading: isLoadingEscena,
-    error: errorEscena,
-  } = useQuery({
+  const { data: escenaExistente, isLoading: isLoadingEscena, error: errorEscena } = useQuery({
     enabled: esEdicion,
     queryKey: ["escena", id],
     queryFn: async () => {
@@ -40,11 +36,7 @@ const FormEscena = () => {
   });
 
   // Funcionalidades desde Firebase
-  const {
-    data: funcionalidades = {},
-    isLoading: isLoadingFuncionalidades,
-    error: errorFuncionalidades,
-  } = useQuery({
+  const { data: funcionalidades = {}, isLoading: isLoadingFuncionalidades, error: errorFuncionalidades } = useQuery({
     queryKey: ["funcionalidades"],
     queryFn: async () => {
       const res = await fetch(`${API_URL}/funcionalidades.json`);
@@ -53,25 +45,8 @@ const FormEscena = () => {
     },
   });
 
-  const {
-    step,
-    titulo,
-    setTitulo,
-    descripcion,
-    setDescripcion,
-    horarios,
-    setHorarios,
-    acciones,
-    setAcciones,
-    errorLocal,
-    setErrorLocal,
-    nextStep,
-    prevStep,
-    handleSeleccionarFuncionalidad,
-    handleChangeAccionParametro,
-    handleAgregarAccion,
-    handleEliminarAccion,
-  } = useEscenaForm(escenaExistente);
+  const { step, titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, acciones, setAcciones, errorLocal, setErrorLocal, nextStep, prevStep,
+    handleSeleccionarFuncionalidad, handleChangeAccionParametro, handleAgregarAccion, handleEliminarAccion } = useEscenaForm(escenaExistente);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,13 +127,12 @@ const FormEscena = () => {
       {errorFuncionalidades && <Message variant="error" message={errorFuncionalidades.message || "Error al cargar funcionalidades"} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        
         {/* PASO 1 */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
             <InputText label="Nombre de la escena" placeholder="Ej: Despertar suave" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-
             <InputTextarea label="Descripción" placeholder="Ej: Enciende luces y música..." value={descripcion} onChange={(e) => setDescripcion(e.target.value)} rows={3} />
-
             <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
               <label className="text-sm font-semibold">Días y horarios programados</label>
               <p className="text-xs text-gray-500 mb-1">Elegí uno o varios días de la semana y un horario para ejecutar esta escena.</p>
@@ -195,36 +169,20 @@ const FormEscena = () => {
                           <label className="text-xs text-gray-600">{paramID.charAt(0).toUpperCase() + paramID.slice(1)}</label>
 
                           {def.tipo === "number" && (
-                            <input
-                              type="number"
-                              min={def.min}
-                              max={def.max}
-                              className="border rounded-lg px-3 py-1.5 text-sm"
-                              value={accion.parametros?.[paramID] || ""}
-                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
-                            />
+                            <input type="number" min={def.min} max={def.max} className="border rounded-lg px-3 py-1.5 text-sm"
+                              value={accion.parametros?.[paramID] || ""} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)} />
                           )}
 
                           {def.tipo === "string" && (
-                            <input
-                              type="text"
-                              className="border rounded-lg px-3 py-1.5 text-sm"
-                              value={accion.parametros?.[paramID] || ""}
-                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
-                            />
+                            <input type="text"  className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)} />
                           )}
 
                           {def.tipo === "select" && (
-                            <select
-                              className="border rounded-lg px-3 py-1.5 text-sm"
-                              value={accion.parametros?.[paramID] || ""}
-                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
-                            >
+                            <select className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""}
+                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}>
                               <option value="">Seleccioná una opción</option>
                               {def.valores.map((v) => (
-                                <option key={v} value={v}>
-                                  {v}
-                                </option>
+                                <option key={v} value={v}>{v} </option>
                               ))}
                             </select>
                           )}
@@ -243,17 +201,11 @@ const FormEscena = () => {
           {step > 1 && (
             <Button label="Volver" onClick={prevStep} variante="secundario" type="button" />
           )}
-
           {step < 2 && (
             <Button label="Siguiente" onClick={nextStep} variante="primario" type="button" />
           )}
-
           {step === 2 && (
-            <Button
-              type="submit"
-              variante="primario"
-              label={esEdicion ? "Guardar cambios" : "Guardar escena"}
-            />
+            <Button type="submit" variante="primario" label={esEdicion ? "Guardar cambios" : "Guardar escena"}/>
           )}
         </div>
       </form>
