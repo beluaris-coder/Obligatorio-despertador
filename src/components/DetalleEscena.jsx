@@ -74,23 +74,27 @@ const DetalleEscena = () => {
   });
 
 const handleEjecutar = () => {
-  const accionJuego = acciones.find(
-    (a) => a.funcionalidad === "juego_matematico"
-  );
+    const accionJuego = acciones.find(
+      (a) => a.funcionalidad === "juego_matematico"
+    );
 
-  console.log("ACCIONES:", acciones);
-  console.log("ACCION JUEGO:", accionJuego);
+    console.log("ACCIONES:", acciones);
+    console.log("ACCION JUEGO:", accionJuego);
 
-  if (accionJuego) {
-    const dificultad = accionJuego.parametros?.dificultad || "facil";
-    navigate(`/juego-matematico?dificultad=${dificultad}`);
-    return;
-  }
+    if (accionJuego) {
+      const dificultad = accionJuego.parametros?.dificultad || "facil";
 
-  ejecutarEscena();
-};
+      ejecutarEscena("manual");
 
-const handleDetener = () => detenerEscena();
+      navigate(`/juego-matematico?dificultad=${dificultad}`);
+      return;
+    }
+
+    // escenas sin juego matemático
+    ejecutarEscena("manual");
+  };
+
+  const handleDetener = () => detenerEscena();
   const handleEditar = () => navigate(`/escena/${id}/editar`);
 
   if (isLoading) return <Loader />;

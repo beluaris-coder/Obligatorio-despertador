@@ -36,22 +36,27 @@ const CardEscena = ({ id }) => {
 
     if (loading || enEjecucion) return;
 
-    // 👇 Nueva lógica: si la escena tiene juego matemático, vamos al jueguito
+    // 👉 buscamos si tiene juego matemático
     const accionJuego = acciones.find(
       (a) => a.funcionalidad === "juego_matematico"
     );
 
     if (accionJuego) {
       const dificultad = accionJuego.parametros?.dificultad || "facil";
+
+      // 1) registro en historial como "manual"
+      ejecutarEscena("manual");
+
+      // 2) voy al juego
       navigate(`/juego-matematico?dificultad=${dificultad}`);
       return;
     }
 
-    // Si no hay juego matemático, ejecutamos la escena normal
+    // si no hay juego matemático, ejecuto la escena normal
     setAnimando(true);
     setLoading(true);
 
-    ejecutarEscena();
+    ejecutarEscena("manual");
 
     setTimeout(() => setAnimando(false), 150);
     setTimeout(() => setLoading(false), 900);

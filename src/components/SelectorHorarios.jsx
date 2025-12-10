@@ -1,14 +1,5 @@
 import React from "react";
-
-const DIAS_SEMANA = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
+import { DIAS_SEMANA } from "../helpers/constants";
 
 const SelectorHorarios = ({ value, onChange }) => {
   const horarios = value && value.length ? value : [{ dia: "", hora: "" }];

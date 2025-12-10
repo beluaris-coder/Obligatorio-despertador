@@ -8,8 +8,11 @@ import Config from "./components/Config";
 import NotFound from "./components/NotFound";
 import DetalleEscena from "./components/DetalleEscena";
 import JuegoMatematico from "./components/JuegoMatematico";
+import { useEjecucionAutomaticaEscenas } from "./hooks/UseEjecucionAutomaticaEscenas";
+
 
 function App() {
+    useEjecucionAutomaticaEscenas();
   return (
     <>
       <main className="pb-24">

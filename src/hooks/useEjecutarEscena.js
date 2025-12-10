@@ -1,14 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../helpers/constants";
 import { useEscenasStore } from "../store/escenasStore";
-
+import { DIAS_SEMANA } from "../helpers/constants";
 
 export const useEjecutarEscena = (escena, id) => {
     const queryClient = useQueryClient();
     const updateEscena = useEscenasStore((s) => s.updateEscena);
 
     const { mutate: ejecutarEscena, isPending: isExecuting } = useMutation({
-        mutationFn: async () => {
+        // 👇 recibe "modo", por defecto "manual"
+        mutationFn: async (modo = "manual") => {
             const ahora = new Date();
             const fecha = ahora.toLocaleString("es-UY", {
                 day: "2-digit",
@@ -17,10 +18,13 @@ export const useEjecutarEscena = (escena, id) => {
                 hour: "2-digit",
                 minute: "2-digit",
             });
-            const dia = ahora.toLocaleString("es-UY", { weekday: "long" });
-            const nuevoRegistro = { fecha, dia, modo: "manual" };
+            const dia = DIAS_SEMANA[ahora.getDay()];
 
-            const historialActual = Array.isArray(escena?.historial) ? escena.historial : [];
+            const nuevoRegistro = { fecha, dia, modo };
+
+            const historialActual = Array.isArray(escena?.historial)
+                ? escena.historial
+                : [];
             const historialActualizado = [...historialActual, nuevoRegistro];
 
             await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -31,11 +35,14 @@ export const useEjecutarEscena = (escena, id) => {
                     enEjecucion: true,
                 }),
             });
+
             return { historialActualizado };
         },
         onSuccess: (data) => {
-            // actualizar store localmente para reflejar que está en ejecución
-            updateEscena(id, { historial: data.historialActualizado, enEjecucion: true });
+            updateEscena(id, {
+                historial: data.historialActualizado,
+                enEjecucion: true,
+            });
             queryClient.invalidateQueries({ queryKey: ["escenas"] });
             queryClient.invalidateQueries({ queryKey: ["escena", id] });
         },

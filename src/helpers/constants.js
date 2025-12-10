@@ -7,3 +7,13 @@ export const IMAGENES_ESCENAS = [
   "public/img/fondo3.jpg",
   "public/img/fondo4.jpg"
 ];
+
+export const DIAS_SEMANA = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
