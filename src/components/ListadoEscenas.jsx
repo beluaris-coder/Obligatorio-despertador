@@ -62,7 +62,7 @@ const ListadoEscenas = ({ search = "" }) => {
           />
 
           <SeccionEscenaDash
-            tituloSeccion="Escenas sin programar"
+            tituloSeccion="Mis escenas"
             tipoEscena={escenasNoEjecutadas}
             mensaje="Todas tus escenas están en ejecución o programadas."
           />

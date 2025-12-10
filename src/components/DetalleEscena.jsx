@@ -86,7 +86,7 @@ const DetalleEscena = () => {
     <section className="p-4 pb-24 flex flex-col gap-4">
 
       <header className="flex items-center justify-between">
-        <TextButton label="Volver" onClick={() => navigate(-1)} variante="volver" />
+        <TextButton label="Volver" onClick={() => navigate("/")} variante="volver" />
         <h1 className="text-lg font-semibold text-center flex-1">{nombreEscena}</h1>
         <span className="w-10" />
       </header>
