@@ -17,6 +17,7 @@ const SeccionEscenaDash = (props) => {
                 id={escena.id}
                 titulo={escena.titulo}
                 imagenIndex={escena.imagenIndex}
+                enEjecucion={escena.enEjecucion}
               />
             </div>
           ))}

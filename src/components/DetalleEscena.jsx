@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { API_URL } from "../helpers/constants";
+import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import Button from "./Shared/Button";
@@ -39,37 +40,10 @@ const DetalleEscena = () => {
   const historial = escena?.historial || [];
   const enEjecucion = escena?.enEjecucion || false;
 
-  // Ejecutar escena: agrega al historial + marca enEjecucion = true
-  const { mutate: ejecutarEscena, isPending: isExecuting } = useMutation({
-    mutationFn: async () => {
-      const ahora = new Date();
-      const fecha = ahora.toLocaleString("es-UY", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      const dia = ahora.toLocaleString("es-UY", { weekday: "long" });
-      const nuevoRegistro = { fecha, dia, modo: "manual"};
-      const historialActual = Array.isArray(escena?.historial) ? escena.historial : [];
-      const historialActualizado = [...historialActual, nuevoRegistro];
+  // Ejecutar escena: usando hook
+  const { ejecutarEscena, isExecuting } = useEjecutarEscena(escena, id);
 
-      await fetch(`${API_URL}/escenas/${id}.json`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          historial: historialActualizado,
-          enEjecucion: true,
-        }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escena", id] });
-      queryClient.invalidateQueries({ queryKey: ["escenas"] });
-    },
-  });
-
+  //Detener escena
   const { mutate: detenerEscena, isPending: isStopping } = useMutation({
     mutationFn: async () => {
       await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -86,6 +60,7 @@ const DetalleEscena = () => {
     },
   });
 
+  //Eliminar escena
   const { mutate: eliminarEscena, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       await fetch(`${API_URL}/escenas/${id}.json`, {
