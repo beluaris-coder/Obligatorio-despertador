@@ -9,7 +9,7 @@ const Message = (props) => {
   };
 
   return (
-    <div className={`border rounded-md p-4 ${variantsStyles[variant]}`}>
+    <div className={`border rounded-md p-3 text-sm ${variantsStyles[variant]}`}>
       {message}
     </div>
   );
