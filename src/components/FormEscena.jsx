@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import SelectorHorarios from "./SelectorHorarios";
 import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
+import { parsearDiasHorarios, limpiarAcciones, validarEscena } from "../helpers/escenas";
+import { useEscenaForm } from "../hooks/useEscenaForm";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
 import ListadoFuncionalidades from "./ListadoFuncionalidades";
@@ -14,19 +15,11 @@ import Button from "./Shared/Button";
 import TextButton from "./Shared/TextButton";
 import { useEscenasStore } from "../store/escenasStore";
 
-const AgregarEscena = () => {
+const FormEscena = () => {
   const { id } = useParams();
   const esEdicion = Boolean(id);
-
-  const [step, setStep] = useState(1);
-  const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [horarios, setHorarios] = useState([{ dia: "", hora: "" }]);
-  const [acciones, setAcciones] = useState([{ funcionalidad: "", parametros: {} }]);
-  const [errorLocal, setErrorLocal] = useState("");
-
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
   const { addEscena, updateEscena } = useEscenasStore();
 
   // Escena existente (para edición)
@@ -60,108 +53,39 @@ const AgregarEscena = () => {
     },
   });
 
-  useEffect(() => {
-    if (escenaExistente) {
-      setTitulo(escenaExistente.titulo || "");
-      setDescripcion(escenaExistente.descripcion || "");
+  const {
+    step,
+    titulo,
+    setTitulo,
+    descripcion,
+    setDescripcion,
+    horarios,
+    setHorarios,
+    acciones,
+    setAcciones,
+    errorLocal,
+    setErrorLocal,
+    nextStep,
+    prevStep,
+    handleSeleccionarFuncionalidad,
+    handleChangeAccionParametro,
+    handleAgregarAccion,
+    handleEliminarAccion,
+  } = useEscenaForm(escenaExistente);
 
-      const parsedHorarios = (escenaExistente.diasHorarios || []).map((linea) => {
-        if (!linea) return { dia: "", hora: "" };
-        const [dia, hora] = linea.split(" ");
-        return { dia: dia || "", hora: hora || "" };
-      });
-
-      setHorarios(parsedHorarios.length > 0 ? parsedHorarios : [{ dia: "", hora: "" }]);
-
-      setAcciones(
-        escenaExistente.acciones?.length
-          ? escenaExistente.acciones.map((a) => ({ funcionalidad: a.funcionalidad || "", parametros: a.parametros || {} }))
-          : [{ funcionalidad: "", parametros: {} }]
-      );
-    }
-  }, [escenaExistente]);
-
-  const { mutate: guardarEscena, isPending } = useMutation({
-    mutationFn: async (escenaAGuardar) => {
-      const url = esEdicion ? `${API_URL}/escenas/${id}.json` : `${API_URL}/escenas.json`;
-      const method = esEdicion ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(escenaAGuardar),
-      });
-      if (!res.ok) throw new Error("Error al guardar la escena");
-      return res.json();
-    },
-    onSuccess: (data, variables) => {
-      // variables === escenaAGuardar
-      if (esEdicion) {
-        updateEscena(id, variables);
-        queryClient.invalidateQueries({ queryKey: ["escena", id] });
-        queryClient.invalidateQueries({ queryKey: ["escenas"] });
-        navigate(`/escena/${id}`);
-      } else {
-        // POST -> firebase returns { name: "generatedId" }
-        const newId = data?.name;
-        if (newId) {
-          const nueva = { id: newId, ...variables };
-          addEscena(nueva);
-        }
-        queryClient.invalidateQueries({ queryKey: ["escenas"] });
-        navigate("/");
-      }
-    },
-  });
-
-  const handleSeleccionarFuncionalidad = (index, funcionalidadID, funcionalidadesData) => {
-    const definicion = funcionalidadesData?.[funcionalidadID]?.parametros || {};
-    const nuevosParametros = {};
-    Object.keys(definicion).forEach((p) => {
-      nuevosParametros[p] = "";
-    });
-    setAcciones((prev) => prev.map((a, i) => (i === index ? { funcionalidad: funcionalidadID, parametros: nuevosParametros } : a)));
-  };
-
-  const handleChangeAccionParametro = (index, parametro, valor) => {
-    setAcciones((prev) => prev.map((accion, i) => (i === index ? { ...accion, parametros: { ...accion.parametros, [parametro]: valor } } : accion)));
-  };
-
-  const handleAgregarAccion = () => setAcciones((prev) => [...prev, { funcionalidad: "", parametros: {} }]);
-  const handleEliminarAccion = (index) => setAcciones((prev) => prev.filter((_, i) => i !== index));
-
-  const nextStep = () => {
-    if (step === 1) {
-      if (!titulo.trim()) {
-        setErrorLocal("La escena debe tener un nombre.");
-        return;
-      }
-      setErrorLocal("");
-    }
-    setStep((s) => s + 1);
-  };
-
-  const prevStep = () => {
-    setErrorLocal("");
-    setStep((s) => s - 1);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const diasHorarios = horarios.filter((h) => h.dia && h.hora).map((h) => `${h.dia} ${h.hora}`);
-    if (diasHorarios.length === 0) {
-      setErrorLocal("Agregá al menos un día y horario para la escena.");
+    const diasHorarios = parsearDiasHorarios(horarios);
+    const accionesLimpias = limpiarAcciones(acciones);
+
+    // Validar
+    const error = validarEscena(titulo, diasHorarios, accionesLimpias);
+    if (error) {
+      setErrorLocal(error);
       return;
     }
 
-    const accionesLimpias = acciones.filter((a) => a.funcionalidad.trim() !== "");
-    if (accionesLimpias.length === 0) {
-      setErrorLocal("Agregá al menos una acción para la escena.");
-      return;
-    }
-
-    // Imagen: mantener la existente o asignar una aleatoria al crear
     const imagen = escenaExistente?.imagen || IMAGENES_ESCENAS[Math.floor(Math.random() * IMAGENES_ESCENAS.length)];
 
     const escenaAGuardar = {
@@ -173,7 +97,35 @@ const AgregarEscena = () => {
     };
 
     setErrorLocal("");
-    guardarEscena(escenaAGuardar);
+
+    try {
+      if (esEdicion) {
+        // Editar
+        await fetch(`${API_URL}/escenas/${id}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(escenaAGuardar),
+        });
+        updateEscena(id, escenaAGuardar);
+        navigate(`/escena/${id}`);
+      } else {
+        // Crear
+        const res = await fetch(`${API_URL}/escenas.json`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(escenaAGuardar),
+        });
+        const data = await res.json();
+        const newId = data?.name;
+        if (newId) {
+          const nueva = { id: newId, ...escenaAGuardar };
+          addEscena(nueva);
+        }
+        navigate("/");
+      }
+    } catch (err) {
+      setErrorLocal(err.message || "Error al guardar la escena");
+    }
   };
 
   if (esEdicion && isLoadingEscena) {
@@ -197,7 +149,6 @@ const AgregarEscena = () => {
       <HeaderForm esEdicion={esEdicion} step={step} />
 
       {errorLocal && <Message variant="error" message={errorLocal} />}
-
       {errorFuncionalidades && <Message variant="error" message={errorFuncionalidades.message || "Error al cargar funcionalidades"} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -211,7 +162,6 @@ const AgregarEscena = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
               <label className="text-sm font-semibold">Días y horarios programados</label>
               <p className="text-xs text-gray-500 mb-1">Elegí uno o varios días de la semana y un horario para ejecutar esta escena.</p>
-
               <SelectorHorarios value={horarios} onChange={setHorarios} />
             </div>
           </div>
@@ -236,30 +186,45 @@ const AgregarEscena = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-gray-600">Funcionalidad</label>
-                  <ListadoFuncionalidades
-                    value={accion.funcionalidad}
-                    onChange={(nuevoValor) => handleSeleccionarFuncionalidad(index, nuevoValor, funcionalidades)}
-                  />
+                  <ListadoFuncionalidades value={accion.funcionalidad} onChange={(nuevoValor) => handleSeleccionarFuncionalidad(index, nuevoValor, funcionalidades)} />
 
-                  {accion.funcionalidad && funcionalidades && funcionalidades[accion.funcionalidad] && (
+                  {accion.funcionalidad && funcionalidades?.[accion.funcionalidad] && (
                     <div className="mt-3 flex flex-col gap-3">
                       {Object.entries(funcionalidades[accion.funcionalidad].parametros).map(([paramID, def]) => (
                         <div key={paramID} className="flex flex-col gap-1">
                           <label className="text-xs text-gray-600">{paramID.charAt(0).toUpperCase() + paramID.slice(1)}</label>
 
                           {def.tipo === "number" && (
-                            <input type="number" min={def.min} max={def.max} className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)} />
+                            <input
+                              type="number"
+                              min={def.min}
+                              max={def.max}
+                              className="border rounded-lg px-3 py-1.5 text-sm"
+                              value={accion.parametros?.[paramID] || ""}
+                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
+                            />
                           )}
 
                           {def.tipo === "string" && (
-                            <input type="text" className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)} />
+                            <input
+                              type="text"
+                              className="border rounded-lg px-3 py-1.5 text-sm"
+                              value={accion.parametros?.[paramID] || ""}
+                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
+                            />
                           )}
 
                           {def.tipo === "select" && (
-                            <select className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}>
+                            <select
+                              className="border rounded-lg px-3 py-1.5 text-sm"
+                              value={accion.parametros?.[paramID] || ""}
+                              onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}
+                            >
                               <option value="">Seleccioná una opción</option>
                               {def.valores.map((v) => (
-                                <option key={v} value={v}>{v}</option>
+                                <option key={v} value={v}>
+                                  {v}
+                                </option>
                               ))}
                             </select>
                           )}
@@ -275,16 +240,19 @@ const AgregarEscena = () => {
 
         {/* BOTONES */}
         <div className="flex gap-2 mt-2">
-          {step > 1 && <Button label="Volver" onClick={prevStep} variante="secundario" type="button" />}
+          {step > 1 && (
+            <Button label="Volver" onClick={prevStep} variante="secundario" type="button" />
+          )}
 
-          {step < 2 && <Button label="Siguiente" onClick={nextStep} variante="primario" type="button" />}
+          {step < 2 && (
+            <Button label="Siguiente" onClick={nextStep} variante="primario" type="button" />
+          )}
 
           {step === 2 && (
             <Button
               type="submit"
-              disabled={isPending}
               variante="primario"
-              label={isPending ? (esEdicion ? "Guardando cambios..." : "Guardando...") : esEdicion ? "Guardar cambios" : "Guardar escena"}
+              label={esEdicion ? "Guardar cambios" : "Guardar escena"}
             />
           )}
         </div>
@@ -293,4 +261,4 @@ const AgregarEscena = () => {
   );
 };
 
-export default AgregarEscena;
+export default FormEscena;
