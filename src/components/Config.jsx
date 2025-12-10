@@ -1,4 +1,7 @@
-import { MdPerson, MdNotifications, MdDarkMode, MdHome, MdSecurity, MdDevices, MdLock, MdEmail, MdWhatsapp, MdQuestionAnswer, MdLogout} from "react-icons/md";
+import {
+  MdPerson, MdNotifications, MdDarkMode, MdHome, MdSecurity, MdDevices,
+  MdLock, MdEmail, MdWhatsapp, MdQuestionAnswer, MdLogout, MdDelete
+} from "react-icons/md";
 import BloqueCardConfig from "./BloqueCardConfig";
 import BloqueRowConfig from "./BloqueRowConfig";
 import ResetAppConfigSection from "./ResetAppConfigSection";
@@ -88,7 +91,7 @@ const Config = () => {
           titulo="Cerrar sesión"
         />
         <BloqueRowConfig
-          icon={MdLogout}
+          icon={MdDelete}
           titulo="Eliminar cuenta"
         />
       </BloqueCardConfig>
