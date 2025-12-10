@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { MdPlayArrow } from "react-icons/md";
 
@@ -7,8 +7,9 @@ import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
 import { useEscenasStore } from "../store/escenasStore";
 import IconButton from "./Shared/IconButton";
 
-
 const CardEscena = ({ id }) => {
+  const navigate = useNavigate();
+
   const escena = useEscenasStore((s) => s.getEscena(id));
   const { ejecutarEscena } = useEjecutarEscena(escena, id);
 
@@ -17,11 +18,12 @@ const CardEscena = ({ id }) => {
 
   if (!escena) return null;
 
-  const { titulo, imagenIndex, imagen, enEjecucion } = escena;
+  const { titulo, imagenIndex, imagen, enEjecucion, acciones = [] } = escena;
 
   const indexValido =
     Number.isInteger(imagenIndex) && IMAGENES_ESCENAS.length > 0
-      ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length : 0;
+      ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length
+      : 0;
 
   const img =
     typeof imagen === "string" && imagen.length > 0
@@ -34,6 +36,18 @@ const CardEscena = ({ id }) => {
 
     if (loading || enEjecucion) return;
 
+    // 👇 Nueva lógica: si la escena tiene juego matemático, vamos al jueguito
+    const accionJuego = acciones.find(
+      (a) => a.funcionalidad === "juego_matematico"
+    );
+
+    if (accionJuego) {
+      const dificultad = accionJuego.parametros?.dificultad || "facil";
+      navigate(`/juego-matematico?dificultad=${dificultad}`);
+      return;
+    }
+
+    // Si no hay juego matemático, ejecutamos la escena normal
     setAnimando(true);
     setLoading(true);
 
@@ -42,7 +56,6 @@ const CardEscena = ({ id }) => {
     setTimeout(() => setAnimando(false), 150);
     setTimeout(() => setLoading(false), 900);
   };
-
 
   return (
     <Link
@@ -54,7 +67,13 @@ const CardEscena = ({ id }) => {
         {titulo}
       </div>
 
-      <IconButton icon={MdPlayArrow} onClick={handlePlay} loading={loading} animando={animando} disabled={enEjecucion} />
+      <IconButton
+        icon={MdPlayArrow}
+        onClick={handlePlay}
+        loading={loading}
+        animando={animando}
+        disabled={enEjecucion}
+      />
     </Link>
   );
 };

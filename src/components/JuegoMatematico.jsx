@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import HeaderJuegoMatematico from "./HeaderJuegoMatematico";
 import CardJuegoMatematico from "./CardJuegoMatematico";
 
 const generarOperacion = (dificultad) => {
@@ -77,7 +76,6 @@ const JuegoMatematico = () => {
 
   return (
     <section className="min-h-screen bg-gray-50 flex flex-col p-4 pb-8">
-      <HeaderJuegoMatematico />
 
       <main className="flex-1 flex items-center justify-center">
         <CardJuegoMatematico
