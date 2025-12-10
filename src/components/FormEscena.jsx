@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import SelectorHorarios from "./SelectorHorarios";
+
 import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
 import Message from "./Shared/Message";
 import Loader from "./Shared/Loader";
@@ -19,7 +21,7 @@ const AgregarEscena = () => {
   const [step, setStep] = useState(1);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [diasHorariosTexto, setDiasHorariosTexto] = useState("");
+  const [horarios, setHorarios] = useState([{ dia: "", hora: "" }]);
   const [acciones, setAcciones] = useState([
     { funcionalidad: "", parametros: {} },
   ]);
@@ -29,7 +31,11 @@ const AgregarEscena = () => {
   const queryClient = useQueryClient();
 
   // Escena existente (para edición)
-  const { data: escenaExistente, isLoading: isLoadingEscena, error: errorEscena } = useQuery({
+  const {
+    data: escenaExistente,
+    isLoading: isLoadingEscena,
+    error: errorEscena,
+  } = useQuery({
     enabled: esEdicion,
     queryKey: ["escena", id],
     queryFn: async () => {
@@ -55,17 +61,34 @@ const AgregarEscena = () => {
     },
   });
 
+  // Cargar datos existentes
   useEffect(() => {
     if (escenaExistente) {
       setTitulo(escenaExistente.titulo || "");
       setDescripcion(escenaExistente.descripcion || "");
-      setDiasHorariosTexto((escenaExistente.diasHorarios || []).join("\n"));
+
+      // "Lunes 07:00" -> { dia: "Lunes", hora: "07:00" }
+      const parsedHorarios = (escenaExistente.diasHorarios || []).map(
+        (linea) => {
+          if (!linea) return { dia: "", hora: "" };
+          const [dia, hora] = linea.split(" ");
+          return {
+            dia: dia || "",
+            hora: hora || "",
+          };
+        }
+      );
+
+      setHorarios(
+        parsedHorarios.length > 0 ? parsedHorarios : [{ dia: "", hora: "" }]
+      );
+
       setAcciones(
         escenaExistente.acciones?.length
           ? escenaExistente.acciones.map((a) => ({
-            funcionalidad: a.funcionalidad || "",
-            parametros: a.parametros || {},
-          }))
+              funcionalidad: a.funcionalidad || "",
+              parametros: a.parametros || {},
+            }))
           : [{ funcionalidad: "", parametros: {} }]
       );
     }
@@ -124,9 +147,9 @@ const AgregarEscena = () => {
       prev.map((accion, i) =>
         i === index
           ? {
-            ...accion,
-            parametros: { ...accion.parametros, [parametro]: valor },
-          }
+              ...accion,
+              parametros: { ...accion.parametros, [parametro]: valor },
+            }
           : accion
       )
     );
@@ -162,10 +185,15 @@ const AgregarEscena = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const diasHorarios = diasHorariosTexto
-      .split("\n")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    // De objetos {dia, hora} a strings "Lunes 07:00"
+    const diasHorarios = horarios
+      .filter((h) => h.dia && h.hora)
+      .map((h) => `${h.dia} ${h.hora}`);
+
+    if (diasHorarios.length === 0) {
+      setErrorLocal("Agregá al menos un día y horario para la escena.");
+      return;
+    }
 
     const accionesLimpias = acciones.filter(
       (a) => a.funcionalidad.trim() !== ""
@@ -176,44 +204,20 @@ const AgregarEscena = () => {
       return;
     }
 
-    // Validar que todos los parámetros estén completos
-    const faltanParametros = accionesLimpias.some((a) =>
-      Object.values(a.parametros || {}).some(
-        (v) => v === "" || v === null || v === undefined
-      )
-    );
+    // Imagen: mantener la existente o asignar una aleatoria al crear
+    const imagen =
+      escenaExistente?.imagen ||
+      IMAGENES_ESCENAS[
+        Math.floor(Math.random() * IMAGENES_ESCENAS.length)
+      ];
 
-    if (faltanParametros) {
-      setErrorLocal(
-        "Completá todos los parámetros de las funcionalidades."
-      );
-      return;
-    }
-
-    let escenaAGuardar;
-
-    if (esEdicion && escenaExistente) {
-      // Conservar campos existentes (como imagenIndex, historial, enEjecucion)
-      escenaAGuardar = {
-        ...escenaExistente,
-        titulo: titulo.trim(),
-        descripcion: descripcion.trim(),
-        diasHorarios,
-        acciones: accionesLimpias,
-      };
-    } else {
-      // Nueva escena: generar imagenIndex aleatorio UNA sola vez
-      const imagenIndex = Math.floor(Math.random() * IMAGENES_ESCENAS.length);
-
-      escenaAGuardar = {
-        titulo: titulo.trim(),
-        descripcion: descripcion.trim(),
-        diasHorarios,
-        acciones: accionesLimpias,
-        imagenIndex,
-        enEjecucion: false,
-      };
-    }
+    const escenaAGuardar = {
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim(),
+      diasHorarios,
+      acciones: accionesLimpias,
+      imagen,
+    };
 
     setErrorLocal("");
     guardarEscena(escenaAGuardar);
@@ -238,8 +242,6 @@ const AgregarEscena = () => {
     );
   }
 
-
-
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">
       <HeaderForm esEdicion={esEdicion} step={step} />
@@ -247,14 +249,18 @@ const AgregarEscena = () => {
       {errorLocal && <Message variant="error" message={errorLocal} />}
 
       {errorFuncionalidades && (
-        <Message variant="error" message={errorFuncionalidades.message || "Error al cargar funcionalidades"}/>
+        <Message
+          variant="error"
+          message={
+            errorFuncionalidades.message || "Error al cargar funcionalidades"
+          }
+        />
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* PASO 1 */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
-
             <InputText
               label="Nombre de la escena"
               placeholder="Ej: Despertar suave"
@@ -271,20 +277,15 @@ const AgregarEscena = () => {
             />
 
             <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
-              <label className="text-sm font-semibold"> Días y horarios programados </label>
+              <label className="text-sm font-semibold">
+                Días y horarios programados
+              </label>
               <p className="text-xs text-gray-500 mb-1">
-                Escribí un día y horario por línea. Ej:
-                <br />
-                <span className="font-mono">Lunes 07:00</span>,{" "}
-                <span className="font-mono">Martes 07:30</span>
+                Elegí uno o varios días de la semana y un horario para
+                ejecutar esta escena.
               </p>
-              <textarea
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-300"
-                rows={3}
-                placeholder={"Lunes 07:00\nMartes 07:30"}
-                value={diasHorariosTexto}
-                onChange={(e) => setDiasHorariosTexto(e.target.value)}
-              />
+
+              <SelectorHorarios value={horarios} onChange={setHorarios} />
             </div>
           </div>
         )}
@@ -292,69 +293,124 @@ const AgregarEscena = () => {
         {/* PASO 2 */}
         {step === 2 && (
           <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-4">
-            
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold"> Acciones de los dispositivos </h2>
-              <TextButton label="Agregar acción" onClick={handleAgregarAccion} variante="agregar" />
+              <h2 className="text-sm font-semibold">
+                Acciones de los dispositivos
+              </h2>
+              <TextButton
+                label="Agregar acción"
+                onClick={handleAgregarAccion}
+                variante="agregar"
+              />
             </div>
 
             {isLoadingFuncionalidades && (
-              <p className="text-xs text-gray-400"> Cargando funcionalidades... </p>
+              <p className="text-xs text-gray-400">
+                Cargando funcionalidades...
+              </p>
             )}
 
             {acciones.map((accion, index) => (
-              <div key={index} className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2">
-                
+              <div
+                key={index}
+                className="border border-gray-100 rounded-lg p-3 flex flex-col gap-2"
+              >
                 <div className="flex justify-between items-center">
-                  <p className="text-xs text-gray-500"> Acción #{index + 1} </p>
+                  <p className="text-xs text-gray-500">
+                    Acción #{index + 1}
+                  </p>
                   {acciones.length > 1 && (
-                    <TextButton label="Eliminar" variante="eliminar" onClick={() => handleEliminarAccion(index)}/>
+                    <TextButton
+                      label="Eliminar"
+                      variante="eliminar"
+                      onClick={() => handleEliminarAccion(index)}
+                    />
                   )}
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-600"> Funcionalidad </label>
+                  <label className="text-xs text-gray-600">
+                    Funcionalidad
+                  </label>
                   <ListadoFuncionalidades
                     value={accion.funcionalidad}
                     onChange={(nuevoValor) =>
-                      handleSeleccionarFuncionalidad( index, nuevoValor, funcionalidades )
+                      handleSeleccionarFuncionalidad(
+                        index,
+                        nuevoValor,
+                        funcionalidades
+                      )
                     }
                   />
 
                   {/* Parámetros dinámicos */}
-                  {accion.funcionalidad && funcionalidades && funcionalidades[accion.funcionalidad] && (
+                  {accion.funcionalidad &&
+                    funcionalidades &&
+                    funcionalidades[accion.funcionalidad] && (
                       <div className="mt-3 flex flex-col gap-3">
-                        {Object.entries( funcionalidades[accion.funcionalidad].parametros ).map(([paramID, def]) => (
-                          <div key={paramID} className="flex flex-col gap-1">
-                            <label className="text-xs text-gray-600"> {paramID.charAt(0).toUpperCase() + paramID.slice(1)} </label>
+                        {Object.entries(
+                          funcionalidades[accion.funcionalidad].parametros
+                        ).map(([paramID, def]) => (
+                          <div
+                            key={paramID}
+                            className="flex flex-col gap-1"
+                          >
+                            <label className="text-xs text-gray-600">
+                              {paramID.charAt(0).toUpperCase() +
+                                paramID.slice(1)}
+                            </label>
+
                             {def.tipo === "number" && (
-                              <input type="number" min={def.min} max={def.max}
+                              <input
+                                type="number"
+                                min={def.min}
+                                max={def.max}
                                 className="border rounded-lg px-3 py-1.5 text-sm"
                                 value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro( index, paramID, e.target.value )
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
                                 }
                               />
                             )}
 
                             {def.tipo === "string" && (
-                              <input type="text" className="border rounded-lg px-3 py-1.5 text-sm"
+                              <input
+                                type="text"
+                                className="border rounded-lg px-3 py-1.5 text-sm"
                                 value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro( index, paramID, e.target.value )
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
                                 }
                               />
                             )}
 
                             {def.tipo === "select" && (
-                              <select className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""}
+                              <select
+                                className="border rounded-lg px-3 py-1.5 text-sm"
+                                value={accion.parametros?.[paramID] || ""}
                                 onChange={(e) =>
-                                  handleChangeAccionParametro( index, paramID, e.target.value)
+                                  handleChangeAccionParametro(
+                                    index,
+                                    paramID,
+                                    e.target.value
+                                  )
                                 }
-                                >
-                                <option value=""> Seleccioná una opción </option>
+                              >
+                                <option value="">
+                                  Seleccioná una opción
+                                </option>
                                 {def.valores.map((v) => (
-                                  <option key={v} value={v}> {v} </option>
+                                  <option key={v} value={v}>
+                                    {v}
+                                  </option>
                                 ))}
                               </select>
                             )}
@@ -363,7 +419,6 @@ const AgregarEscena = () => {
                       </div>
                     )}
                 </div>
-
               </div>
             ))}
           </div>
@@ -372,21 +427,36 @@ const AgregarEscena = () => {
         {/* BOTONES */}
         <div className="flex gap-2 mt-2">
           {step > 1 && (
-            <Button label="Volver" onClick={prevStep} variante="secundario" type="button" />
+            <Button
+              label="Volver"
+              onClick={prevStep}
+              variante="secundario"
+              type="button"
+            />
           )}
 
           {step < 2 && (
-            <Button label="Siguiente" onClick={nextStep} variante="primario" type="button" />
+            <Button
+              label="Siguiente"
+              onClick={nextStep}
+              variante="primario"
+              type="button"
+            />
           )}
 
           {step === 2 && (
-            <Button type="submit" disabled={isPending} variante="primario"
+            <Button
+              type="submit"
+              disabled={isPending}
+              variante="primario"
               label={
                 isPending
                   ? esEdicion
-                    ? "Guardando cambios..." : "Guardando..."
+                    ? "Guardando cambios..."
+                    : "Guardando..."
                   : esEdicion
-                    ? "Guardar cambios" : "Guardar escena"
+                  ? "Guardar cambios"
+                  : "Guardar escena"
               }
             />
           )}
