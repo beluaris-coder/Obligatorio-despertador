@@ -5,7 +5,7 @@ import { MdPlayArrow } from "react-icons/md";
 import { IMAGENES_ESCENAS } from "../helpers/constants";
 import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
 import { useEscenasStore } from "../store/escenasStore";
-import IconButton from "./Shared/IconButton";
+import IconButtonPlay from "./Shared/IconButtonPlay";
 
 const CardEscena = ({ id }) => {
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ const CardEscena = ({ id }) => {
         {titulo}
       </div>
 
-      <IconButton
+      <IconButtonPlay
         icon={MdPlayArrow}
         onClick={handlePlay}
         loading={loading}

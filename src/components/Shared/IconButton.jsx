@@ -1,29 +1,26 @@
 const IconButton = (props) => {
-  const {
-    icon: Icon,
-    onClick,
-    loading = false,
-    animando = false,
-    className = "",
-  } = props;
+  const { icon: Icon, variante } = props;
+
+  const baseEstilos = "flex items-center justify-center rounded-full";
+
+  const estilos =
+    variante === "small"
+      ? "w-7 h-7 bg-yellow-50 text-yellow-500"
+      : variante === "medium"
+      ? "w-8 h-8 bg-violet-50 text-violet-500"
+      : "";
+
+  const tamanioIcono =
+    variante === "small"
+      ? "w-3 h-3"
+      : variante === "medium"
+      ? "w-4 h-4"
+      : "";
 
   return (
-    <div
-      onClick={onClick}
-      className={`absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center cursor-pointer ${className}`}
-    >
-      {loading && (
-        <div className="absolute w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin" />
-      )}
-
-      <div
-        className={`bg-white/90 w-8 h-8 rounded-full flex items-center justify-center shadow transition-transform duration-150 ${
-          animando ? "scale-90" : "scale-100"
-        }`}
-      >
-        <Icon className="text-gray-600 text-xl" />
-      </div>
-    </div>
+    <button className={baseEstilos + " " + estilos}>
+      {Icon && <Icon className={tamanioIcono} />}
+    </button>
   );
 };
 

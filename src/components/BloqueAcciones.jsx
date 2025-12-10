@@ -1,11 +1,14 @@
-import { FaLightbulb, FaMusic, FaPowerOff, FaClock, FaQuestionCircle } from "react-icons/fa";
+import { FaLightbulb, FaMusic, FaQuestionCircle } from "react-icons/fa";
 import { capitalizar } from "../helpers/text";
+import  IconButton from "./Shared/IconButton";
 
 const iconosPorAccion = {
-  luz: <FaLightbulb className="text-yellow-500" />,
-  musica: <FaMusic className="text-blue-500" />,
-  apagar: <FaPowerOff className="text-red-500" />,
-  temporizador: <FaClock className="text-purple-500" />,
+  luz: (
+    <IconButton variante="small" icon={FaLightbulb} />
+  ),
+  musica: (
+    <IconButton variante="small" icon={FaMusic} />
+  ),
 };
 
 const BloqueAcciones = ({ acciones }) => {
