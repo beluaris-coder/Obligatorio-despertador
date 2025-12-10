@@ -1,37 +1,45 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { MdPlayArrow } from "react-icons/md";
+
 import { IMAGENES_ESCENAS } from "../helpers/constants";
 import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
-import { MdPlayArrow } from "react-icons/md";
+import { useEscenasStore } from "../store/escenasStore";
 import IconButton from "./Shared/IconButton";
 
-const CardEscena = (props) => {
-  const { id, titulo, imagenIndex, enEjecucion } = props;
-  const { ejecutarEscena } = useEjecutarEscena(null, id);
+
+const CardEscena = ({ id }) => {
+  const escena = useEscenasStore((s) => s.getEscena(id));
+  const { ejecutarEscena } = useEjecutarEscena(escena, id);
 
   const [animando, setAnimando] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  if (!escena) return null;
+
+  const { titulo, imagenIndex, imagen, enEjecucion } = escena;
 
   const indexValido =
     Number.isInteger(imagenIndex) && IMAGENES_ESCENAS.length > 0
       ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length : 0;
 
-  const img = IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
+  const img =
+    typeof imagen === "string" && imagen.length > 0
+      ? imagen
+      : IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
 
   const handlePlay = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (loading) return;
+    if (loading || enEjecucion) return;
 
     setAnimando(true);
     setLoading(true);
+
     ejecutarEscena();
 
-    // animación click
     setTimeout(() => setAnimando(false), 150);
-
-    // simular loader
     setTimeout(() => setLoading(false), 900);
   };
 
@@ -46,7 +54,7 @@ const CardEscena = (props) => {
         {titulo}
       </div>
 
-      <IconButton icon={MdPlayArrow} onClick={handlePlay} loading={loading} animando={animando} disabled={enEjecucion}/>
+      <IconButton icon={MdPlayArrow} onClick={handlePlay} loading={loading} animando={animando} disabled={enEjecucion} />
     </Link>
   );
 };
