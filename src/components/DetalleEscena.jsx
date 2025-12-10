@@ -73,19 +73,24 @@ const DetalleEscena = () => {
     },
   });
 
-  const handleEjecutar = () => {
-    const accionJuego = acciones.find(
-      (a) => a.funcionalidad === "juego_matematico"
-    );
+const handleEjecutar = () => {
+  const accionJuego = acciones.find(
+    (a) => a.funcionalidad === "juego_matematico"
+  );
 
-    if (accionJuego) {
-      const dificultad = accionJuego.parametros?.dificultad || "facil";
-      navigate(`/juego-matematico?dificultad=${dificultad}`);
-      return;
-    }
+  console.log("ACCIONES:", acciones);
+  console.log("ACCION JUEGO:", accionJuego);
 
-    ejecutarEscena();
-  }; const handleDetener = () => detenerEscena();
+  if (accionJuego) {
+    const dificultad = accionJuego.parametros?.dificultad || "facil";
+    navigate(`/juego-matematico?dificultad=${dificultad}`);
+    return;
+  }
+
+  ejecutarEscena();
+};
+
+const handleDetener = () => detenerEscena();
   const handleEditar = () => navigate(`/escena/${id}/editar`);
 
   if (isLoading) return <Loader />;

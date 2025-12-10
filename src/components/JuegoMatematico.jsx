@@ -17,6 +17,7 @@ const generarOperacion = (dificultad) => {
     return { texto: `${dividendo} ÷ ${divisor}`, resultado };
   }
 
+  // fácil → suma
   const a = Math.floor(Math.random() * 20) + 1;
   const b = Math.floor(Math.random() * 20) + 1;
   return { texto: `${a} + ${b}`, resultado: a + b };
@@ -26,14 +27,16 @@ const JuegoMatematico = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  // NUEVO: dificultad desde query param
   const dificultad = params.get("dificultad") || "facil";
 
   const [respuesta, setRespuesta] = useState("");
   const [error, setError] = useState("");
   const [resuelto, setResuelto] = useState(false);
 
-  const operacion = useMemo(() => generarOperacion(dificultad), [dificultad]);
+  const operacion = useMemo(
+    () => generarOperacion(dificultad),
+    [dificultad]
+  );
 
   const handleChangeRespuesta = (valor) => {
     setRespuesta(valor);
