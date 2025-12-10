@@ -1,9 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import SelectorHorarios from "./SelectorHorarios";
 import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
-import { parsearDiasHorarios, limpiarAcciones, validarEscena } from "../helpers/escenas";
+import { parsearDiasHorarios, limpiarAcciones, validarEscena, validarPaso2 } from "../helpers/escenas";
 import { useEscenaForm } from "../hooks/useEscenaForm";
 import Paso1Form from "./Paso1Form";
 import Paso2Form from "./Paso2Form";
@@ -45,7 +44,8 @@ const FormEscena = () => {
   });
 
   const { step, titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, acciones, errorLocal, setErrorLocal, nextStep, prevStep,
-    handleSeleccionarFuncionalidad, handleChangeAccionParametro, handleAgregarAccion, handleEliminarAccion } = useEscenaForm(escenaExistente);
+    handleSeleccionarFuncionalidad, handleChangeAccionParametro, handleAgregarAccion, handleEliminarAccion }
+    = useEscenaForm(escenaExistente);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +53,14 @@ const FormEscena = () => {
     const diasHorarios = parsearDiasHorarios(horarios);
     const accionesLimpias = limpiarAcciones(acciones);
 
-    // Validar
+    // Validar Paso 2 antes de enviar
+    const errorPaso2 = validarPaso2(acciones);
+    if (errorPaso2) {
+      setErrorLocal(errorPaso2);
+      return;
+    }
+
+    // Validar escena completa
     const error = validarEscena(titulo, diasHorarios, accionesLimpias);
     if (error) {
       setErrorLocal(error);

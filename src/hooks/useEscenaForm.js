@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { validarPaso1, validarPaso2 } from "../helpers/escenas";
 
 export const useEscenaForm = (escenaExistente) => {
   const [step, setStep] = useState(1);
@@ -33,9 +34,12 @@ export const useEscenaForm = (escenaExistente) => {
   }, [escenaExistente]);
 
   const nextStep = () => {
-    if (step === 1 && !titulo.trim()) {
-      setErrorLocal("La escena debe tener un nombre.");
-      return;
+    if (step === 1) {
+      const error = validarPaso1(titulo, horarios);
+      if (error) {
+        setErrorLocal(error);
+        return;
+      }
     }
     setErrorLocal("");
     setStep((s) => s + 1);
