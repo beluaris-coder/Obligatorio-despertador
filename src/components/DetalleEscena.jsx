@@ -73,13 +73,24 @@ const DetalleEscena = () => {
     },
   });
 
-  const handleEjecutar = () => ejecutarEscena();
-  const handleDetener = () => detenerEscena();
+  const handleEjecutar = () => {
+    const accionJuego = acciones.find(
+      (a) => a.funcionalidad === "juego_matematico"
+    );
+
+    if (accionJuego) {
+      const dificultad = accionJuego.parametros?.dificultad || "facil";
+      navigate(`/juego-matematico?dificultad=${dificultad}`);
+      return;
+    }
+
+    ejecutarEscena();
+  }; const handleDetener = () => detenerEscena();
   const handleEditar = () => navigate(`/escena/${id}/editar`);
 
   if (isLoading) return <Loader />;
   if (error) return <Message variant="error" message={error.message || "Error al cargar la escena"} />;
-  
+
 
 
   return (
@@ -110,7 +121,7 @@ const DetalleEscena = () => {
 
       <article className="mt-2 flex flex-col gap-2">
         {!enEjecucion && (
-          <Button variante="primario" onClick={handleEjecutar} disabled={isExecuting} label={isExecuting ? "Ejecutando..." : "Ejecutar escena"}/>
+          <Button variante="primario" onClick={handleEjecutar} disabled={isExecuting} label={isExecuting ? "Ejecutando..." : "Ejecutar escena"} />
         )}
         {enEjecucion && (
           <Button onClick={handleDetener} disabled={isStopping} label={isStopping ? "Deteniendo..." : "Detener escena"} />
