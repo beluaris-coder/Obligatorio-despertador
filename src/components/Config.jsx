@@ -1,20 +1,4 @@
-// Config.jsx
-import React from "react";
-import {
-  MdPerson,
-  MdNotifications,
-  MdDarkMode,
-  MdHome,
-  MdSecurity,
-  MdDevices,
-  MdLock,
-  MdHelpOutline,
-  MdEmail,
-  MdWhatsapp,
-  MdQuestionAnswer,
-  MdLogout,
-} from "react-icons/md";
-
+import { MdPerson, MdNotifications, MdDarkMode, MdHome, MdSecurity, MdDevices, MdLock, MdEmail, MdWhatsapp, MdQuestionAnswer, MdLogout} from "react-icons/md";
 import BloqueCardConfig from "./BloqueCardConfig";
 import BloqueRowConfig from "./BloqueRowConfig";
 import ResetAppConfigSection from "./ResetAppConfigSection";
@@ -27,8 +11,8 @@ const Config = () => {
         <h1 className="text-xl font-semibold">Configuración</h1>
       </header>
 
-      {/* 1) General Settings */}
-      <BloqueCardConfig titulo="General Settings" defaultAbierto={false}>
+      {/* 1) General */}
+      <BloqueCardConfig titulo="General" defaultAbierto={false}>
         {/* Perfil */}
         <div className="flex items-center gap-3 py-2">
           <div className="w-10 h-10 rounded-full bg-violet-200 flex items-center justify-center text-violet-700 text-sm font-semibold">
@@ -39,29 +23,23 @@ const Config = () => {
             <p className="text-xs text-gray-500">Editar el perfil</p>
           </div>
         </div>
-
         <BloqueRowConfig
           icon={MdPerson}
-          titulo="Account Settings"
-          subtitulo="Información de cuenta"
+          titulo="Datos personales"
         />
-
         <BloqueRowConfig
           icon={MdNotifications}
           titulo="Notificaciones"
           tieneToggle
         />
-
         <BloqueRowConfig
           icon={MdDarkMode}
-          titulo="Dark Mode"
+          titulo="Modo oscuro"
           tieneToggle
         />
-
         <BloqueRowConfig
           icon={MdHome}
           titulo="Direcciones"
-          subtitulo="Direcciones guardadas"
         />
       </BloqueCardConfig>
 
@@ -70,7 +48,6 @@ const Config = () => {
         <BloqueRowConfig
           icon={MdLock}
           titulo="Cambiar contraseña"
-          subtitulo="Actualizar contraseña de acceso"
         />
         <BloqueRowConfig
           icon={MdDevices}
@@ -80,41 +57,39 @@ const Config = () => {
         <BloqueRowConfig
           icon={MdSecurity}
           titulo="Autenticación en dos pasos"
-          subtitulo="Decorativo"
+          subtitulo="Medida adicional de seguridad"
           tieneToggle
         />
       </BloqueCardConfig>
 
       {/* 3) Contactarnos */}
-      <BloqueCardConfig titulo="Contactarnos" defaultAbierto={false}>
+      <BloqueCardConfig titulo="Contactanos" defaultAbierto={false}>
         <BloqueRowConfig
           icon={MdEmail}
           titulo="Enviar correo"
-          subtitulo="soporte@despertador.app"
+          subtitulo="soporte@despertador.com"
         />
         <BloqueRowConfig
           icon={MdWhatsapp}
           titulo="WhatsApp"
-          subtitulo="+598 0000 0000"
+          subtitulo="+598 99 234 000"
         />
         <BloqueRowConfig
           icon={MdQuestionAnswer}
-          titulo="Preguntas frecuentes"
-          subtitulo="Ver ayuda y tutoriales"
+          titulo="Soporte"
+          subtitulo="Preguntas frecuentes y tutoriales"
         />
       </BloqueCardConfig>
 
       {/* 4) Log Out */}
-      <BloqueCardConfig titulo="Log Out" defaultAbierto={false}>
+      <BloqueCardConfig titulo="Cerrar sesión" defaultAbierto={false}>
         <BloqueRowConfig
           icon={MdLogout}
           titulo="Cerrar sesión"
-          subtitulo="Vuelve más tarde"
         />
         <BloqueRowConfig
           icon={MdLogout}
           titulo="Eliminar cuenta"
-          subtitulo=":("
         />
       </BloqueCardConfig>
 

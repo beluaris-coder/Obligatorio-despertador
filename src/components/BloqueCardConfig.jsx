@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
 
 const BloqueCardConfig = ({ titulo, children, defaultAbierto = true }) => {
