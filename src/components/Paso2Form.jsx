@@ -1,5 +1,7 @@
+import { labelFuncionalidad } from "../helpers/text";
 import ListadoFuncionalidades from "./ListadoFuncionalidades";
 import TextButton from "./Shared/TextButton";
+
 
 const Paso2Form = (props) => {
   const { acciones, funcionalidades, isLoadingFuncionalidades, handleAgregarAccion, handleEliminarAccion, handleSeleccionarFuncionalidad, handleChangeAccionParametro } = props;
@@ -56,7 +58,7 @@ const Paso2Form = (props) => {
                   ).map(([paramID, def]) => (
                     <div key={paramID} className="flex flex-col gap-1">
                       <label className="text-xs text-gray-600">
-                        {paramID.charAt(0).toUpperCase() + paramID.slice(1)}
+                        {labelFuncionalidad(paramID)}
                       </label>
 
                       {def.tipo === "number" && (
@@ -108,9 +110,10 @@ const Paso2Form = (props) => {
                           </option>
                           {def.valores.map((v) => (
                             <option key={v} value={v}>
-                              {v}
+                              {labelFuncionalidad(v)}
                             </option>
                           ))}
+
                         </select>
                       )}
                     </div>

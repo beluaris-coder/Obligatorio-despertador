@@ -1,6 +1,7 @@
-import { FaLightbulb, FaMusic, FaQuestionCircle, FaClock, FaWindowMaximize, FaSprayCan, FaCalculator, FaBed, FaWaveSquare, FaMobileAlt  } from "react-icons/fa";
-import { capitalizar } from "../helpers/text";
-import  IconButton from "./Shared/IconButton";
+import { FaLightbulb, FaMusic, FaQuestionCircle, FaClock, FaWindowMaximize, FaSprayCan, FaCalculator, FaBed, FaWaveSquare, FaMobileAlt } from "react-icons/fa";
+import { labelFuncionalidad } from "../helpers/text";
+import IconButton from "./Shared/IconButton";
+
 
 const iconosPorAccion = {
   luz: (
@@ -37,8 +38,8 @@ const iconosPorAccion = {
 };
 
 const BloqueAcciones = ({ acciones }) => {
-  
-    return (
+
+  return (
     <article className="bg-white rounded-xl shadow-sm p-4">
       <h2 className="text-sm font-semibold mb-2"> Acciones asociadas al cubito </h2>
 
@@ -57,16 +58,19 @@ const BloqueAcciones = ({ acciones }) => {
                 {/* Título con icono */}
                 <div className="flex items-center gap-2">
                   {icono}
-                  <p className="font-medium"> {capitalizar(accion.funcionalidad)} </p>
+                  <p className="font-medium">
+                    {labelFuncionalidad(accion.funcionalidad)}
+                  </p>
                 </div>
 
                 {/* Parámetros */}
                 {accion.parametros &&
-                Object.keys(accion.parametros).length > 0 ? (
+                  Object.keys(accion.parametros).length > 0 ? (
                   <ul className="mt-1 ml-6 text-xs text-gray-600">
                     {Object.entries(accion.parametros).map(
                       ([param, valor]) => (
-                        <li key={param}> <strong>{capitalizar(param)}:</strong> {valor} </li>
+                        <li key={param}> <strong>{labelFuncionalidad(param)}:</strong> {valor}
+                        </li>
                       )
                     )}
                   </ul>
