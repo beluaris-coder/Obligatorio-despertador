@@ -12,6 +12,7 @@ import BloqueEstado from "./BloqueEstado";
 import BloqueTexto from "./BloqueTexto";
 import BloqueLista from "./BloqueLista";
 import BloqueAcciones from "./BloqueAcciones";
+import BloqueDuracion from "./BloqueDuracion";
 
 const DetalleEscena = () => {
   const { id } = useParams();
@@ -38,6 +39,7 @@ const DetalleEscena = () => {
   // Extraer propiedades
   const nombreEscena = escena?.nombre || escena?.titulo || "Escena sin nombre";
   const descripcion = escena?.descripcion || escena?.body || "Sin descripción";
+  const duracion = escena?.duracion || [];
   const diasHorarios = escena?.diasHorarios || [];
   const acciones = escena?.acciones || [];
   const historial = escena?.historial || [];
@@ -118,6 +120,8 @@ const DetalleEscena = () => {
       />
 
       <BloqueTexto titulo="Descripción" texto={descripcion} />
+
+      <BloqueDuracion titulo="Duración" texto={duracion} />
 
       <BloqueLista
         titulo="Días y horarios programados"
