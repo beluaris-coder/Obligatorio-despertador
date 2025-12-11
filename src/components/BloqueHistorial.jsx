@@ -11,7 +11,8 @@ const BloqueHistorial = ({ historial }) => {
       ) : (
         <ul className="text-sm text-gray-700 divide-y divide-gray-100">
           {historial.map((item, index) => (
-            <li key={index} className="py-2 flex justify-between">
+            <li key={index} className="py-2 flex justify-between items-center">
+
               <div>
                 <p className="font-medium">{item.fecha}</p>
                 {item.dia && (
