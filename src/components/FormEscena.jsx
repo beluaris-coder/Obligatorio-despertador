@@ -33,7 +33,7 @@ const FormEscena = () => {
     },
   });
 
-  // Funcionalidades desde Firebase
+  // Cargar lista de funcionalidades desde Firebase
   const { data: funcionalidades = {}, isLoading: isLoadingFuncionalidades, error: errorFuncionalidades } = useQuery({
     queryKey: ["funcionalidades"],
     queryFn: async () => {
@@ -43,29 +43,18 @@ const FormEscena = () => {
     },
   });
 
-  const {
-    step,
-    titulo, setTitulo,
-    descripcion, setDescripcion,
-    horarios, setHorarios,
-    duracion, setDuracion,
-    acciones,
-    errorLocal, setErrorLocal,
-    nextStep, prevStep,
-    handleSeleccionarFuncionalidad,
-    handleChangeAccionParametro,
-    handleAgregarAccion,
-    handleEliminarAccion
-  }
-    = useEscenaForm(escenaExistente);
+  //Manejo del form (hook)
+  const { step, titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, duracion, setDuracion, acciones, errorLocal, setErrorLocal, nextStep, prevStep,
+    handleSeleccionarFuncionalidad, handleChangeAccionParametro, handleAgregarAccion, handleEliminarAccion } = useEscenaForm(escenaExistente);
 
+  //Submit final (para crear o editar)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const diasHorarios = parsearDiasHorarios(horarios);
     const accionesLimpias = limpiarAcciones(acciones);
 
-    // Validar Paso 2 antes de enviar
+    // Validar Paso 2
     const errorPaso2 = validarPaso2(acciones);
     if (errorPaso2) {
       setErrorLocal(errorPaso2);
@@ -79,29 +68,26 @@ const FormEscena = () => {
       return;
     }
 
+    //Asignar imagen aleatoria o mantener la existente
     const imagen = escenaExistente?.imagen || IMAGENES_ESCENAS[Math.floor(Math.random() * IMAGENES_ESCENAS.length)];
 
-    const escenaAGuardar = {
-      titulo: titulo.trim(),
-      descripcion: descripcion.trim(),
-      diasHorarios,
-      acciones: accionesLimpias,
-      imagen,
-      duracion: Number.isFinite(+duracion) ? Number(duracion) : 0
-    };
+    // Objeto a guardar en Firebase
+    const escenaAGuardar = { titulo: titulo.trim(), descripcion: descripcion.trim(), diasHorarios, acciones: accionesLimpias, imagen, duracion: Number.isFinite(+duracion) ? Number(duracion) : 0};
 
     setErrorLocal("");
 
     try {
+      // Edición
       if (esEdicion) {
-        // Editar
         await fetch(`${API_URL}/escenas/${id}.json`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(escenaAGuardar),
         });
-        updateEscena(id, escenaAGuardar);
+
+        updateEscena(id, escenaAGuardar); // update local
         navigate(`/escena/${id}`);
+
       } else {
         // Crear
         const res = await fetch(`${API_URL}/escenas.json`, {
@@ -109,19 +95,23 @@ const FormEscena = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(escenaAGuardar),
         });
+
         const data = await res.json();
         const newId = data?.name;
+
         if (newId) {
-          const nueva = { id: newId, ...escenaAGuardar };
-          addEscena(nueva);
+          addEscena({ id: newId, ...escenaAGuardar }); // update local
         }
+
         navigate("/");
       }
+
     } catch (err) {
       setErrorLocal(err.message || "Error al guardar la escena");
     }
   };
 
+  //Estados de carga y errores
   if (esEdicion && isLoadingEscena) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
@@ -137,6 +127,7 @@ const FormEscena = () => {
       </section>
     );
   }
+
 
   return (
     <section className="p-4 pb-24 flex flex-col gap-4">

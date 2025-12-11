@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import IconButton from "../components/Shared/IconButton";
 import { MdChevronRight } from "react-icons/md";
@@ -13,10 +12,7 @@ const BloqueRowConfig = ({ icon: Icon, titulo, subtitulo, tieneToggle = false })
   };
 
   return (
-    <button
-      type="button"
-      className="w-full flex items-center justify-between py-2 text-left"
-    >
+    <button type="button" className="w-full flex items-center justify-between py-2 text-left">
       <div className="flex items-center gap-3">
         {Icon && (
           <IconButton icon={Icon} variante="medium"/>
@@ -30,15 +26,8 @@ const BloqueRowConfig = ({ icon: Icon, titulo, subtitulo, tieneToggle = false })
 
       <div className="flex items-center gap-2">
         {tieneToggle ? (
-          <div
-            onClick={handleToggleClick}
-            className={`w-9 h-5 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${activo ? "bg-violet-500" : "bg-gray-300"
-              }`}
-          >
-            <div
-              className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${activo ? "translate-x-4" : ""
-                }`}
-            />
+          <div onClick={handleToggleClick} className={`w-9 h-5 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${activo ? "bg-violet-500" : "bg-gray-300" }`}>
+            <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${activo ? "translate-x-4" : ""}`}/>
           </div>
         ) : (
           <MdChevronRight className="text-gray-400" />

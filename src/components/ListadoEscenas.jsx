@@ -12,9 +12,8 @@ const minutosHastaProximaEjecucion = (escena) => {
   }
 
   const ahora = new Date();
-  const diaActual = ahora.getDay();
-
-  let mejorDiff = null; 
+  const diaActual = ahora.getDay(); // 0=domingo
+  let mejorDiff = null; // guarda el menor número de minutos encontrado
 
   for (const linea of escena.diasHorarios) {
     if (!linea) continue;
@@ -22,28 +21,34 @@ const minutosHastaProximaEjecucion = (escena) => {
     const [diaTexto, horaTexto] = linea.split(" ");
     if (!diaTexto || !horaTexto) continue;
 
+    // Convertir el día textual a índice
     const idxDia = DIAS_SEMANA.indexOf(diaTexto);
     if (idxDia === -1) continue;
 
+    // Parseo de la hora
     const [hhStr, mmStr] = horaTexto.split(":");
     const hh = Number(hhStr);
     const mm = Number(mmStr);
     if (Number.isNaN(hh) || Number.isNaN(mm)) continue;
 
+    // Generar una fecha con ese día y hora
     const proxima = new Date(ahora);
     proxima.setHours(hh, mm, 0, 0);
 
     let diffDias = idxDia - diaActual;
-    if (diffDias < 0) diffDias += 7;
+    if (diffDias < 0) diffDias += 7; // si el día ya pasó, va a la semana siguiente
 
     proxima.setDate(proxima.getDate() + diffDias);
 
+    // Si la hora ya pasó hoy, va a la próxima semana
     if (proxima <= ahora) {
       proxima.setDate(proxima.getDate() + 7);
     }
 
+    // Diferencia en minutos
     const diffMin = (proxima - ahora) / 60000;
 
+    // Nos quedamos con la ejecución más cercana
     if (mejorDiff === null || diffMin < mejorDiff) {
       mejorDiff = diffMin;
     }
@@ -55,6 +60,7 @@ const minutosHastaProximaEjecucion = (escena) => {
 const ListadoEscenas = ({ search = "" }) => {
   const { escenas, setEscenas } = useEscenasStore();
 
+  // Obtener las escenas desde Firebase y guardar en el store global
   const { isLoading, error } = useQuery({
     queryKey: ["escenas"],
     queryFn: async () => {
@@ -62,45 +68,31 @@ const ListadoEscenas = ({ search = "" }) => {
       if (!res.ok) throw new Error("Error al cargar escenas");
       const data = await res.json();
       if (!data) return [];
+      // Convertir el objeto de Firebase en un array
       const arr = Object.entries(data).map(([id, val]) => ({ id, ...val }));
       setEscenas(arr);
       return arr;
     },
   });
 
+  // Normalización del search
   const normalizado = search.trim().toLowerCase();
 
-  const escenasFiltradas = normalizado
-    ? escenas.filter((escena) =>
-        escena.titulo?.toLowerCase().includes(normalizado)
-      )
-    : escenas;
-
-
-  const escenasConTiempo = escenasFiltradas.map((e) => ({
-    ...e,
-    minutosHastaEjecucion: minutosHastaProximaEjecucion(e),
-  }));
-
-  const escenasEnEjecucion = escenasConTiempo.filter(
-    (e) => e.enEjecucion === true
-  );
-
-
+  const escenasFiltradas = normalizado ? escenas.filter((escena) => escena.titulo?.toLowerCase().includes(normalizado)) : escenas;
+  const escenasConTiempo = escenasFiltradas.map((e) => ({ ...e, minutosHastaEjecucion: minutosHastaProximaEjecucion(e) }));
+  const escenasEnEjecucion = escenasConTiempo.filter((e) => e.enEjecucion === true);
   const escenasProximas = escenasConTiempo.filter((e) => {
     return (
       !e.enEjecucion &&
       e.minutosHastaEjecucion !== null &&
-      e.minutosHastaEjecucion < 60
+      e.minutosHastaEjecucion < 60 //dentro de la proxima hora
     );
   });
-
-
   const escenasNoEjecutadas = escenasConTiempo.filter((e) => {
-    const esProxima =
-      e.minutosHastaEjecucion !== null && e.minutosHastaEjecucion < 60;
+    const esProxima = e.minutosHastaEjecucion !== null && e.minutosHastaEjecucion < 60;
     return !e.enEjecucion && !esProxima;
   });
+
 
   return (
     <>
@@ -128,28 +120,16 @@ const ListadoEscenas = ({ search = "" }) => {
         </div>
       )}
 
-      {!isLoading &&
-        !error &&
-        escenas.length > 0 &&
-        escenasFiltradas.length === 0 && (
-          <Message
-            variant="info"
-            message="No se encontraron escenas que coincidan con la búsqueda"
-          />
-        )}
+      {!isLoading && !error && escenas.length > 0 && escenasFiltradas.length === 0 && (
+        <Message variant="info" message="No se encontraron escenas que coincidan con la búsqueda" />
+      )}
 
       {!isLoading && !error && escenas.length === 0 && (
-        <Message
-          variant="info"
-          message="No hay escenas disponibles, agregá una para comenzar"
-        />
+        <Message variant="info" message="No hay escenas disponibles, agregá una para comenzar" />
       )}
 
       {error && (
-        <Message
-          variant="error"
-          message={error.message || "Error al cargar escenas"}
-        />
+        <Message variant="error" message={error.message || "Error al cargar escenas"} />
       )}
     </>
   );

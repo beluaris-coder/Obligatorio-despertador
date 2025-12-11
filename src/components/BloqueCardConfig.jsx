@@ -6,12 +6,9 @@ const BloqueCardConfig = ({ titulo, children, defaultAbierto = true }) => {
 
   return (
     <section className="bg-white rounded-xl shadow-sm">
+      
       {/* Header del bloque */}
-      <button
-        type="button"
-        onClick={() => setAbierto((prev) => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3"
-      >
+      <button type="button" onClick={() => setAbierto((prev) => !prev)} className="w-full flex items-center justify-between px-4 py-3">
         <h2 className="text-sm font-semibold">{titulo}</h2>
         {abierto ? (
           <MdExpandLess className="text-gray-400" />

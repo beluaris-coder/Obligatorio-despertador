@@ -18,6 +18,7 @@ const DetalleEscena = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  //Cargar datos de la escena
   const { data: escena, isLoading, error } = useQuery({
     queryKey: ["escena", id],
     queryFn: async () => {
@@ -27,12 +28,14 @@ const DetalleEscena = () => {
       const escenaSeleccionada = data?.[id];
 
       if (!escenaSeleccionada) {
-        navigate("*");
+        navigate("*"); //error 404
       }
+      // Devolver objeto con el ID incluido
       return { id, ...escenaSeleccionada };
     },
   });
 
+  // Extraer propiedades
   const nombreEscena = escena?.nombre || escena?.titulo || "Escena sin nombre";
   const descripcion = escena?.descripcion || escena?.body || "Sin descripción";
   const diasHorarios = escena?.diasHorarios || [];
@@ -43,7 +46,7 @@ const DetalleEscena = () => {
   // Ejecutar escena: usando hook
   const { ejecutarEscena, isExecuting } = useEjecutarEscena(escena, id);
 
-  //Detener escena
+  //Detener escena: enEjecucion = false y actualiza escena y lista
   const { mutate: detenerEscena, isPending: isStopping } = useMutation({
     mutationFn: async () => {
       await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -60,7 +63,7 @@ const DetalleEscena = () => {
     },
   });
 
-  //Eliminar escena
+  //Eliminar escena: elimina, actualiza lista y redirige al dash
   const { mutate: eliminarEscena, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -73,19 +76,16 @@ const DetalleEscena = () => {
     },
   });
 
-const handleEjecutar = () => {
+  //Manejar ejecución manual y si tiene juego matemático redirige a él
+  const handleEjecutar = () => {
     const accionJuego = acciones.find(
       (a) => a.funcionalidad === "juego_matematico"
     );
 
-    console.log("ACCIONES:", acciones);
-    console.log("ACCION JUEGO:", accionJuego);
-
+    // escenas con juego matemático
     if (accionJuego) {
       const dificultad = accionJuego.parametros?.dificultad || "facil";
-
       ejecutarEscena("manual");
-
       navigate(`/juego-matematico?dificultad=${dificultad}`);
       return;
     }

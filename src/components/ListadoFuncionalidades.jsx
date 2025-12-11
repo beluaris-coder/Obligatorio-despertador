@@ -1,19 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { API_URL } from "../helpers/constants";
 import Loader from "./Shared/Loader";
 import Message from "./Shared/Message";
-import { useQuery } from "@tanstack/react-query";
-
-// 👇 importar helper
 import { labelFuncionalidad } from "../helpers/text";
+
 
 const ListadoFuncionalidades = (props) => {
     const { value, onChange } = props;
 
-    const {
-        data: funcionalidades = {},
-        isLoading,
-        error,
-    } = useQuery({
+    const { data: funcionalidades = {}, isLoading, error } = useQuery({
         queryKey: ["funcionalidades"],
         queryFn: async () => {
             const res = await fetch(`${API_URL}/funcionalidades.json`);
@@ -23,10 +19,8 @@ const ListadoFuncionalidades = (props) => {
         },
     });
 
-    const opciones = Object.entries(funcionalidades).map(([id, info]) => ({
-        id,
-        nombre: info?.nombre || id, // si firebase no trae nombre, usamos el ID
-    }));
+    // Convertir el objeto en un array usable por el select
+    const opciones = Object.entries(funcionalidades).map(([id, info]) => ({ id, nombre: info?.nombre || id })); //si no hay nombre usamos el Id
 
     if (isLoading) {
         return (
@@ -37,9 +31,7 @@ const ListadoFuncionalidades = (props) => {
     }
 
     if (error) {
-        return (
-            <Message variant="error" message={error.message || "Error al cargar funcionalidades"} />
-        );
+        return <Message variant="error" message={error.message || "Error al cargar funcionalidades"} />
     }
 
     return (

@@ -12,10 +12,7 @@ const SeccionEscenaDash = (props) => {
       ) : (
         <article className="flex flex-wrap gap-3 w-full justify-between md:justify-start">
           {tipoEscena.map((escena) => (
-            <div
-              key={escena.id}
-              className="w-[calc(50%-0.375rem)] md:w-auto"
-            >
+            <div key={escena.id} className="w-[calc(50%-0.375rem)] md:w-auto">
               <CardEscena id={escena.id} />
             </div>
           ))}

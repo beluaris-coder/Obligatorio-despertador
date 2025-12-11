@@ -21,11 +21,7 @@ const TextButton = (props) => {
     const { className, icon } = variantes[variante];
 
     return (
-        <button
-            type={type}
-            onClick={onClick}
-            className={className}
-        >
+        <button type={type} onClick={onClick} className={className} >
             <div className="flex gap-1 items-center">
                 {icon}
                 {label}

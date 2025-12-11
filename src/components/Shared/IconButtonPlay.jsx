@@ -1,17 +1,8 @@
 const IconButtonPlay = (props) => {
-  const {
-    icon: Icon,
-    onClick,
-    loading = false,
-    animando = false,
-    className = "",
-  } = props;
+  const { icon: Icon, onClick, loading = false, animando = false, className = "" } = props;
 
   return (
-    <div
-      onClick={onClick}
-      className={`absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center cursor-pointer ${className}`}
-    >
+    <div onClick={onClick} className={`absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center cursor-pointer ${className}`} >
       {loading && (
         <div className="absolute w-10 h-10 rounded-full border-2 border-pink-500 border-t-transparent animate-spin" />
       )}

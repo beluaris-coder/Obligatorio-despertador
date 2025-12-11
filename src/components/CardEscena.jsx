@@ -20,15 +20,9 @@ const CardEscena = ({ id }) => {
 
   const { titulo, imagenIndex, imagen, enEjecucion, acciones = [] } = escena;
 
-  const indexValido =
-    Number.isInteger(imagenIndex) && IMAGENES_ESCENAS.length > 0
-      ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length
-      : 0;
+  const indexValido = Number.isInteger(imagenIndex) && IMAGENES_ESCENAS.length > 0 ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length : 0;
 
-  const img =
-    typeof imagen === "string" && imagen.length > 0
-      ? imagen
-      : IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
+  const img = typeof imagen === "string" && imagen.length > 0 ? imagen : IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
 
   const handlePlay = (e) => {
     e.preventDefault();
@@ -37,9 +31,7 @@ const CardEscena = ({ id }) => {
     if (loading || enEjecucion) return;
 
     // buscamos si tiene juego matemático
-    const accionJuego = acciones.find(
-      (a) => a.funcionalidad === "juego_matematico"
-    );
+    const accionJuego = acciones.find((a) => a.funcionalidad === "juego_matematico");
 
     if (accionJuego) {
       const dificultad = accionJuego.parametros?.dificultad || "facil";

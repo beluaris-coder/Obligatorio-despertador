@@ -51,16 +51,12 @@ const BloqueAcciones = ({ acciones }) => {
             const icono = iconosPorAccion[accion.funcionalidad] || <FaQuestionCircle className="text-gray-400" />
 
             return (
-              <li
-                key={index}
-                className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2"
-              >
+              <li key={index} className="text-sm text-gray-700 border border-gray-100 rounded-lg px-3 py-2">
+               
                 {/* Título con icono */}
                 <div className="flex items-center gap-2">
                   {icono}
-                  <p className="font-medium">
-                    {labelFuncionalidad(accion.funcionalidad)}
-                  </p>
+                  <p className="font-medium"> {labelFuncionalidad(accion.funcionalidad)} </p>
                 </div>
 
                 {/* Parámetros */}
@@ -69,8 +65,7 @@ const BloqueAcciones = ({ acciones }) => {
                   <ul className="mt-1 ml-6 text-xs text-gray-600">
                     {Object.entries(accion.parametros).map(
                       ([param, valor]) => (
-                        <li key={param}> <strong>{labelFuncionalidad(param)}:</strong> {valor}
-                        </li>
+                        <li key={param}> <strong>{labelFuncionalidad(param)}:</strong> {valor}</li>
                       )
                     )}
                   </ul>
