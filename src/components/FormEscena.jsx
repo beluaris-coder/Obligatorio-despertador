@@ -43,8 +43,20 @@ const FormEscena = () => {
     },
   });
 
-  const { step, titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, /* duracion, setDuracion, */ acciones, errorLocal, setErrorLocal, nextStep, prevStep,
-    handleSeleccionarFuncionalidad, handleChangeAccionParametro, handleAgregarAccion, handleEliminarAccion }
+  const {
+    step,
+    titulo, setTitulo,
+    descripcion, setDescripcion,
+    horarios, setHorarios,
+    duracion, setDuracion,
+    acciones,
+    errorLocal, setErrorLocal,
+    nextStep, prevStep,
+    handleSeleccionarFuncionalidad,
+    handleChangeAccionParametro,
+    handleAgregarAccion,
+    handleEliminarAccion
+  }
     = useEscenaForm(escenaExistente);
 
   const handleSubmit = async (e) => {
@@ -75,7 +87,7 @@ const FormEscena = () => {
       diasHorarios,
       acciones: accionesLimpias,
       imagen,
-      //duracion: Number.isFinite(+duracion) ? Number(duracion) : 0
+      duracion: Number.isFinite(+duracion) ? Number(duracion) : 0
     };
 
     setErrorLocal("");
@@ -144,8 +156,8 @@ const FormEscena = () => {
             setDescripcion={setDescripcion}
             horarios={horarios}
             setHorarios={setHorarios}
-            /* duracion={duracion}
-            setDuracion={setDuracion} */
+            duracion={duracion}
+            setDuracion={setDuracion}
           />
         )}
 

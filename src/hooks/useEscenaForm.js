@@ -6,6 +6,7 @@ export const useEscenaForm = (escenaExistente) => {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [horarios, setHorarios] = useState([{ dia: "", hora: "" }]);
+  const [duracion, setDuracion] = useState(0);
   const [acciones, setAcciones] = useState([{ funcionalidad: "", parametros: {} }]);
   const [errorLocal, setErrorLocal] = useState("");
 
@@ -77,6 +78,8 @@ export const useEscenaForm = (escenaExistente) => {
     setHorarios,
     acciones,
     setAcciones,
+    duracion,
+    setDuracion,
     errorLocal,
     setErrorLocal,
     nextStep,

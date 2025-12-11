@@ -65,7 +65,7 @@ const CardEscena = ({ id }) => {
   return (
     <Link
       to={`/escena/${id}`}
-      className="relative h-28 md:w-48 rounded-2xl overflow-hidden shadow-sm flex items-end bg-cover bg-center"
+      className="relative h-32 md:w-48 rounded-2xl overflow-hidden shadow-sm flex items-end bg-cover bg-center"
       style={{ backgroundImage: `url(${img})` }}
     >
       <div className="absolute top-1 left-1 px-2 py-1 rounded-md text-[0.90rem] font-semibold text-gray-800">

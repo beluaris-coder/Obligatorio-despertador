@@ -3,7 +3,7 @@ import InputText from "./Shared/InputTxt";
 import InputTextarea from "./Shared/InputTxtArea";
 
 const Paso1Form = (props) => {
-    const { titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, /* duracion, setDuracion */ } = props;
+    const { titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, duracion, setDuracion } = props;
 
     return (
         <div className="flex flex-col gap-4">
@@ -17,13 +17,13 @@ const Paso1Form = (props) => {
                 <SelectorHorarios value={horarios} onChange={setHorarios} />
             </div>
 
-            {/* <div className="bg-white rounded-xl shadow-sm p-4">
+            <div className="bg-white rounded-xl shadow-sm p-4">
                 <label className="text-sm font-semibold">Duración (minutos)</label>
                 <p className="text-xs text-gray-500 mb-1">La escena se detendrá automáticamente luego de este tiempo. Si quiere detenerla manualmente ingrese 0.</p>
                 <input type="number" min={0} step={1} className="border rounded-lg px-3 py-1.5 text-sm w-32"
                     value={duracion} onChange={(e) => setDuracion(Math.max(0, Number(e.target.value || 0)))}
                 />
-            </div> */}
+            </div> 
         </div>
     );
 };
