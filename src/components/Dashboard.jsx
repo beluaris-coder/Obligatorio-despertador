@@ -1,3 +1,4 @@
+// Dashboard.jsx
 import { useState } from "react";
 import Search from "./Shared/Search";
 import ListadoEscenas from "./ListadoEscenas";
@@ -6,6 +7,7 @@ import { useEjecucionAutomaticaEscenas } from "../hooks/UseEjecucionAutomaticaEs
 const Dashboard = () => {
   const [search, setSearch] = useState("");
 
+  // 👇 esto hace que el intervalo se active
   useEjecucionAutomaticaEscenas();
 
   return (

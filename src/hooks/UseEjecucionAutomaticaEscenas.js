@@ -1,9 +1,9 @@
+// UseEjecucionAutomaticaEscenas.js
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { DIAS_SEMANA } from "../helpers/constants";
-import { API_URL } from "../helpers/constants";
+import { DIAS_SEMANA, API_URL } from "../helpers/constants";
 
 const esMomentoDeEjecutar = (escena, ahora) => {
   if (!Array.isArray(escena.diasHorarios) || escena.diasHorarios.length === 0) {
@@ -41,7 +41,6 @@ export const useEjecucionAutomaticaEscenas = () => {
       try {
         const ahora = new Date();
 
-        // Traemos todas las escenas desde Firebase
         const res = await fetch(`${API_URL}/escenas.json`);
         if (!res.ok) return;
         const data = await res.json();
@@ -66,7 +65,7 @@ export const useEjecucionAutomaticaEscenas = () => {
             navigate(`/juego-matematico?dificultad=${dificultad}`);
           }
 
-          // ------------ NUEVO: sumar entrada al historial ------------
+          // Historial
           const fechaLegible = ahora.toLocaleString("es-UY", {
             day: "2-digit",
             month: "2-digit",
@@ -76,7 +75,6 @@ export const useEjecucionAutomaticaEscenas = () => {
           });
 
           const diaTexto = DIAS_SEMANA[ahora.getDay()];
-
           const historialAnterior = Array.isArray(escena.historial)
             ? escena.historial
             : [];
@@ -86,8 +84,8 @@ export const useEjecucionAutomaticaEscenas = () => {
             dia: diaTexto,
             modo: "automático",
           };
-          // -----------------------------------------------------------
 
+          // Marcar en ejecución + agregar historial en Firebase
           await fetch(`${API_URL}/escenas/${escena.id}.json`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -99,6 +97,32 @@ export const useEjecucionAutomaticaEscenas = () => {
 
           queryClient.invalidateQueries({ queryKey: ["escenas"] });
           queryClient.invalidateQueries({ queryKey: ["escena", escena.id] });
+
+          // ⬇️ AUTO-APAGADO SEGÚN DURACIÓN (en minutos)
+          const duracionMinutos = Number(escena?.duracion) || 0;
+          if (duracionMinutos > 0) {
+            const ms = duracionMinutos * 60 * 1000;
+
+            setTimeout(async () => {
+              try {
+                await fetch(`${API_URL}/escenas/${escena.id}.json`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ enEjecucion: false }),
+                });
+
+                queryClient.invalidateQueries({ queryKey: ["escenas"] });
+                queryClient.invalidateQueries({
+                  queryKey: ["escena", escena.id],
+                });
+              } catch (err) {
+                console.error(
+                  "Error auto-deteniendo escena (automática):",
+                  err
+                );
+              }
+            }, ms);
+          }
         }
       } catch (err) {
         console.error("Error en ejecución automática:", err);
