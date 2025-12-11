@@ -36,7 +36,7 @@ const CardEscena = ({ id }) => {
 
     if (loading || enEjecucion) return;
 
-    // 👉 buscamos si tiene juego matemático
+    // buscamos si tiene juego matemático
     const accionJuego = acciones.find(
       (a) => a.funcionalidad === "juego_matematico"
     );
@@ -65,10 +65,10 @@ const CardEscena = ({ id }) => {
   return (
     <Link
       to={`/escena/${id}`}
-      className="relative w-32 h-24 rounded-xl overflow-hidden shadow-sm flex items-end bg-cover bg-center"
+      className="relative h-28 md:w-48 rounded-2xl overflow-hidden shadow-sm flex items-end bg-cover bg-center"
       style={{ backgroundImage: `url(${img})` }}
     >
-      <div className="absolute top-1 left-1 px-2 py-1 rounded-md text-xs font-semibold text-gray-800">
+      <div className="absolute top-1 left-1 px-2 py-1 rounded-md text-[0.90rem] font-semibold text-gray-800">
         {titulo}
       </div>
 

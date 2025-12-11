@@ -17,7 +17,7 @@ const IconButtonPlay = (props) => {
       )}
 
       <div
-        className={`bg-white/90 w-8 h-8 rounded-full flex items-center justify-center shadow transition-transform duration-150 ${
+        className={`bg-white/90 w-9 h-9 rounded-full flex items-center justify-center shadow transition-transform duration-150 ${
           animando ? "scale-90" : "scale-100"
         }`}
       >

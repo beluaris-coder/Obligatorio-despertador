@@ -11,13 +11,11 @@ export const limpiarAcciones = (acciones) =>
 export const validarPaso1 = (titulo, horarios) => {
   if (!titulo.trim()) return "La escena debe tener un nombre.";
 
-  // Validar que cada fila tenga ambos (dia Y hora) o ninguno
+  // Cada fila debe tener ambos (día Y hora) o ninguno
   for (const h of horarios) {
-    const tienedia = h.dia && h.dia.trim();
-    const tienehora = h.hora && h.hora.trim();
-
-    // Si tiene uno pero no el otro da error
-    if ((tienedia && !tienehora) || (!tienedia && tienehora)) {
+    const tieneDia = h.dia && h.dia.trim();
+    const tieneHora = h.hora && h.hora.trim();
+    if ((tieneDia && !tieneHora) || (!tieneDia && tieneHora)) {
       return "Cada día debe tener un horario asignado (o dejar ambos vacíos).";
     }
   }
@@ -45,7 +43,8 @@ export const validarPaso2 = (acciones) => {
 
 export const validarEscena = (titulo, diasHorarios, acciones) => {
   if (!titulo.trim()) return "La escena debe tener un nombre.";
-  if (diasHorarios.length === 0) return "Agregá al menos un día y horario para la escena.";
-  if (acciones.length === 0) return "Agregá al menos una acción para la escena.";
+  // diasHorarios puede ser vacío (modo manual), no forzamos su existencia aquí
+  const accionesValidas = acciones.filter((a) => a.funcionalidad?.trim());
+  if (accionesValidas.length === 0) return "Agregá al menos una acción para la escena.";
   return null;
 };

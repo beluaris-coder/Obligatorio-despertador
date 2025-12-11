@@ -10,13 +10,13 @@ const iconosPorAccion = {
     <IconButton variante="small" icon={FaLightbulb} bgColor="bg-yellow-50" textColor="text-yellow-500" />
   ),
   musica: (
-    <IconButton variante="small" icon={FaMusic} />
+    <IconButton variante="small" icon={FaMusic}  bgColor="bg-blue-100" textColor="text-blue-500"/>
   ),
   alarma: (
     <IconButton variante="small" icon={FaClock} />
   ),
   subir_persianas: (
-    <IconButton variante="small" icon={FaWindowMaximize} />
+    <IconButton variante="small" icon={FaWindowMaximize}  bgColor="bg-cyan-100" textColor="text-cyan-500"/>
   ),
   aroma: (
     <IconButton variante="small" icon={FaSprayCan} bgColor="bg-pink-100" textColor="text-pink-500" />
@@ -31,7 +31,7 @@ const iconosPorAccion = {
     <IconButton variante="small" icon={FaWaveSquare} />
   ),
   sacudir_para_apagar: (
-    <IconButton variante="small" icon={FaMobileAlt} />
+    <IconButton variante="small" icon={FaMobileAlt}  bgColor="bg-rose-100" textColor="text-rose-500" />
   )
 
 };
