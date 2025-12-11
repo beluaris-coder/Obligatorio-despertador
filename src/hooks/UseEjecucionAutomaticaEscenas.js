@@ -1,4 +1,3 @@
-// UseEjecucionAutomaticaEscenas.js
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -75,9 +74,7 @@ export const useEjecucionAutomaticaEscenas = () => {
           });
 
           const diaTexto = DIAS_SEMANA[ahora.getDay()];
-          const historialAnterior = Array.isArray(escena.historial)
-            ? escena.historial
-            : [];
+          const historialAnterior = Array.isArray(escena.historial) ? escena.historial : [];
 
           const nuevoRegistro = {
             fecha: fechaLegible,
@@ -98,7 +95,7 @@ export const useEjecucionAutomaticaEscenas = () => {
           queryClient.invalidateQueries({ queryKey: ["escenas"] });
           queryClient.invalidateQueries({ queryKey: ["escena", escena.id] });
 
-          // ⬇️ AUTO-APAGADO SEGÚN DURACIÓN (en minutos)
+          // AUTO-APAGADO SEGÚN DURACIÓN (en minutos)
           const duracionMinutos = Number(escena?.duracion) || 0;
           if (duracionMinutos > 0) {
             const ms = duracionMinutos * 60 * 1000;

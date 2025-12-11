@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useEjecucionAutomaticaEscenas } from "../hooks/UseEjecucionAutomaticaEscenas";
+import { useEjecucionAutomaticaEscenas } from "../hooks/useEjecucionAutomaticaEscenas";
 import Search from "./Shared/Search";
 import ListadoEscenas from "./ListadoEscenas";
 

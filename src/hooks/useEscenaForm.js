@@ -25,8 +25,7 @@ export const useEscenaForm = (escenaExistente) => {
     setHorarios(parsedHorarios.length ? parsedHorarios : [{ dia: "", hora: "" }]);
 
     setAcciones(
-      escenaExistente.acciones?.length
-        ? escenaExistente.acciones.map((a) => ({
+      escenaExistente.acciones?.length ? escenaExistente.acciones.map((a) => ({
             funcionalidad: a.funcionalidad || "",
             parametros: a.parametros || {},
           }))

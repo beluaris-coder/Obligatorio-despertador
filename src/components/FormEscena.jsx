@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { IMAGENES_ESCENAS, API_URL } from "../helpers/constants";
 import { parsearDiasHorarios, limpiarAcciones, validarEscena, validarPaso2 } from "../helpers/escenas";
 import { useEscenaForm } from "../hooks/useEscenaForm";
+import { useFuncionalidades } from "../hooks/useFuncionalidades";
+
 import Paso1Form from "./Paso1Form";
 import Paso2Form from "./Paso2Form";
 import Message from "./Shared/Message";
@@ -33,15 +35,8 @@ const FormEscena = () => {
     },
   });
 
-  // Cargar lista de funcionalidades desde Firebase
-  const { data: funcionalidades = {}, isLoading: isLoadingFuncionalidades, error: errorFuncionalidades } = useQuery({
-    queryKey: ["funcionalidades"],
-    queryFn: async () => {
-      const res = await fetch(`${API_URL}/funcionalidades.json`);
-      if (!res.ok) throw new Error("Error al cargar funcionalidades");
-      return res.json();
-    },
-  });
+  // Cargar lista de funcionalidades desde Firebase (hook)
+  const { data: funcionalidades = {}, isLoading: isLoadingFuncionalidades, error: errorFuncionalidades } = useFuncionalidades();
 
   //Manejo del form (hook)
   const { step, titulo, setTitulo, descripcion, setDescripcion, horarios, setHorarios, duracion, setDuracion, acciones, errorLocal, setErrorLocal, nextStep, prevStep,

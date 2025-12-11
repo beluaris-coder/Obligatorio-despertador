@@ -1,4 +1,3 @@
-// useEjecutarEscena.js
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_URL, DIAS_SEMANA } from "../helpers/constants";
 import { useEscenasStore } from "../store/escenasStore";
@@ -21,9 +20,7 @@ export const useEjecutarEscena = (escena, id) => {
 
       const nuevoRegistro = { fecha, dia, modo };
 
-      const historialActual = Array.isArray(escena?.historial)
-        ? escena.historial
-        : [];
+      const historialActual = Array.isArray(escena?.historial) ? escena.historial : [];
       const historialActualizado = [...historialActual, nuevoRegistro];
 
       await fetch(`${API_URL}/escenas/${id}.json`, {
@@ -46,7 +43,7 @@ export const useEjecutarEscena = (escena, id) => {
       queryClient.invalidateQueries({ queryKey: ["escenas"] });
       queryClient.invalidateQueries({ queryKey: ["escena", id] });
 
-      // ⬇️ AUTO-APAGADO SEGÚN DURACIÓN (en minutos)
+      // AUTO-APAGADO SEGÚN DURACIÓN (en minutos)
       const duracionMinutos = Number(escena?.duracion) || 0;
 
       // Si es 0 → solo se detiene manualmente
