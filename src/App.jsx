@@ -17,8 +17,7 @@ function App() {
     pathname === "/" ||
     pathname === "/agregar" ||
     pathname === "/config" ||
-    pathname.startsWith("/escena") ||
-    pathname === "/juego-matematico";
+    (pathname.startsWith("/escena") && !pathname.endsWith("/*"))
 
   const mainPaddingClass = mostrarNavInferior ? "pb-24" : "pb-0";
 

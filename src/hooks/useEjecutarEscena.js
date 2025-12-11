@@ -8,7 +8,7 @@ export const useEjecutarEscena = (escena, id) => {
     const updateEscena = useEscenasStore((s) => s.updateEscena);
 
     const { mutate: ejecutarEscena, isPending: isExecuting } = useMutation({
-        // 👇 recibe "modo", por defecto "manual"
+        // recibe "modo", por defecto "manual"
         mutationFn: async (modo = "manual") => {
             const ahora = new Date();
             const fecha = ahora.toLocaleString("es-UY", {

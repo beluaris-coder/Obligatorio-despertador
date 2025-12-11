@@ -27,7 +27,7 @@ const DetalleEscena = () => {
       const escenaSeleccionada = data?.[id];
 
       if (!escenaSeleccionada) {
-        throw new Error("Escena no encontrada");
+        navigate("*");
       }
       return { id, ...escenaSeleccionada };
     },
