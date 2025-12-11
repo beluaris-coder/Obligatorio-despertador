@@ -1,11 +1,56 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { API_URL } from "../helpers/constants";
+import { API_URL, DIAS_SEMANA } from "../helpers/constants";
 import { useEscenasStore } from "../store/escenasStore";
 import SeccionEscenaDash from "./SeccionEscenaDash";
 import Loader from "./Shared/Loader";
 import Message from "./Shared/Message";
 
+const minutosHastaProximaEjecucion = (escena) => {
+  if (!Array.isArray(escena.diasHorarios) || escena.diasHorarios.length === 0) {
+    return null;
+  }
+
+  const ahora = new Date();
+  const diaActual = ahora.getDay();
+
+  let mejorDiff = null; 
+
+  for (const linea of escena.diasHorarios) {
+    if (!linea) continue;
+
+    const [diaTexto, horaTexto] = linea.split(" ");
+    if (!diaTexto || !horaTexto) continue;
+
+    const idxDia = DIAS_SEMANA.indexOf(diaTexto);
+    if (idxDia === -1) continue;
+
+    const [hhStr, mmStr] = horaTexto.split(":");
+    const hh = Number(hhStr);
+    const mm = Number(mmStr);
+    if (Number.isNaN(hh) || Number.isNaN(mm)) continue;
+
+    const proxima = new Date(ahora);
+    proxima.setHours(hh, mm, 0, 0);
+
+    let diffDias = idxDia - diaActual;
+    if (diffDias < 0) diffDias += 7;
+
+    proxima.setDate(proxima.getDate() + diffDias);
+
+    if (proxima <= ahora) {
+      proxima.setDate(proxima.getDate() + 7);
+    }
+
+    const diffMin = (proxima - ahora) / 60000;
+
+    if (mejorDiff === null || diffMin < mejorDiff) {
+      mejorDiff = diffMin;
+    }
+  }
+
+  return mejorDiff;
+};
 
 const ListadoEscenas = ({ search = "" }) => {
   const { escenas, setEscenas } = useEscenasStore();
@@ -26,22 +71,36 @@ const ListadoEscenas = ({ search = "" }) => {
   const normalizado = search.trim().toLowerCase();
 
   const escenasFiltradas = normalizado
-    ? escenas.filter((escena) => escena.titulo?.toLowerCase().includes(normalizado))
+    ? escenas.filter((escena) =>
+        escena.titulo?.toLowerCase().includes(normalizado)
+      )
     : escenas;
 
-  const escenasEnEjecucion = escenasFiltradas.filter((e) => e.enEjecucion === true);
 
-  const escenasProximas = escenasFiltradas.filter((e) => {
-    const tieneHorarios = Array.isArray(e.diasHorarios) && e.diasHorarios.length > 0;
-    return !e.enEjecucion && tieneHorarios;
+  const escenasConTiempo = escenasFiltradas.map((e) => ({
+    ...e,
+    minutosHastaEjecucion: minutosHastaProximaEjecucion(e),
+  }));
+
+  const escenasEnEjecucion = escenasConTiempo.filter(
+    (e) => e.enEjecucion === true
+  );
+
+
+  const escenasProximas = escenasConTiempo.filter((e) => {
+    return (
+      !e.enEjecucion &&
+      e.minutosHastaEjecucion !== null &&
+      e.minutosHastaEjecucion < 60
+    );
   });
 
-  const escenasNoEjecutadas = escenasFiltradas.filter((e) => {
-    const tieneHorarios = Array.isArray(e.diasHorarios) && e.diasHorarios.length > 0;
-    return !e.enEjecucion && !tieneHorarios;
+
+  const escenasNoEjecutadas = escenasConTiempo.filter((e) => {
+    const esProxima =
+      e.minutosHastaEjecucion !== null && e.minutosHastaEjecucion < 60;
+    return !e.enEjecucion && !esProxima;
   });
-
-
 
   return (
     <>
@@ -58,7 +117,7 @@ const ListadoEscenas = ({ search = "" }) => {
           <SeccionEscenaDash
             tituloSeccion="Próximas a ejecutarse"
             tipoEscena={escenasProximas}
-            mensaje="No hay escenas programadas para ejecutarse."
+            mensaje="No hay escenas programadas para ejecutarse en la próxima hora."
           />
 
           <SeccionEscenaDash
@@ -69,15 +128,29 @@ const ListadoEscenas = ({ search = "" }) => {
         </div>
       )}
 
-      {/* Mensajes de estado */}
-      {!isLoading && !error && escenas.length > 0 && escenasFiltradas.length === 0 && (
-        <Message variant="info" message="No se encontraron escenas que coincidan con la búsqueda" />
+      {!isLoading &&
+        !error &&
+        escenas.length > 0 &&
+        escenasFiltradas.length === 0 && (
+          <Message
+            variant="info"
+            message="No se encontraron escenas que coincidan con la búsqueda"
+          />
+        )}
+
+      {!isLoading && !error && escenas.length === 0 && (
+        <Message
+          variant="info"
+          message="No hay escenas disponibles, agregá una para comenzar"
+        />
       )}
 
-      {!isLoading && !error && escenas.length === 0 && <Message variant="info" message="No hay escenas disponibles, agregá una para comenzar" />}
-
-      {error && <Message variant="error" message={error.message} />}
-
+      {error && (
+        <Message
+          variant="error"
+          message={error.message || "Error al cargar escenas"}
+        />
+      )}
     </>
   );
 };
