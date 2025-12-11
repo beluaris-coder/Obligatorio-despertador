@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MdPlayArrow } from "react-icons/md";
+import { MdPlayArrow, MdStop  } from "react-icons/md";
 
 import { IMAGENES_ESCENAS } from "../helpers/constants";
 import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
@@ -11,7 +11,7 @@ const CardEscena = ({ id }) => {
   const navigate = useNavigate();
 
   const escena = useEscenasStore((s) => s.getEscena(id));
-  const { ejecutarEscena } = useEjecutarEscena(escena, id);
+  const { ejecutarEscena, stopRemoto } = useEjecutarEscena(escena, id);
 
   const [animando, setAnimando] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,11 +24,23 @@ const CardEscena = ({ id }) => {
 
   const img = typeof imagen === "string" && imagen.length > 0 ? imagen : IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
 
-  const handlePlay = (e) => {
+  const handlePlay = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (loading || enEjecucion) return;
+    if (loading) return;
+
+    // Si está en ejecución -> detener
+    if (enEjecucion) {
+      setLoading(true);
+      try {
+        await stopRemoto(id);
+      } 
+       finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     // buscamos si tiene juego matemático
     const accionJuego = acciones.find((a) => a.funcionalidad === "juego_matematico");
@@ -54,6 +66,9 @@ const CardEscena = ({ id }) => {
     setTimeout(() => setLoading(false), 900);
   };
 
+  // icono cambia según estado: play si detenida, stop si en ejecución
+  const Icon = enEjecucion ? MdStop : MdPlayArrow;
+
   return (
     <Link
       to={`/escena/${id}`}
@@ -65,11 +80,10 @@ const CardEscena = ({ id }) => {
       </div>
 
       <IconButtonPlay
-        icon={MdPlayArrow}
+        icon={Icon}
         onClick={handlePlay}
         loading={loading}
         animando={animando}
-        disabled={enEjecucion}
       />
     </Link>
   );
