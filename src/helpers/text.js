@@ -3,7 +3,13 @@ export const capitalizar = (texto) =>
 
 export const labelFuncionalidad = (texto) => {
   if (!texto) return "";
+
   return texto
-    .replace(/_/g, " ")      // convierte guiones bajos a espacios
-    .replace(/\b\w/g, (l) => l.toUpperCase());  // pone cada palabra con mayúscula
+    .replace(/_/g, " ") 
+    .split(" ")
+    .map(
+      (palabra) =>
+        palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase()
+    )
+    .join(" ");
 };

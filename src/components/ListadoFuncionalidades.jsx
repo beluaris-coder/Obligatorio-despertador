@@ -3,6 +3,9 @@ import Loader from "./Shared/Loader";
 import Message from "./Shared/Message";
 import { useQuery } from "@tanstack/react-query";
 
+// 👇 importar helper
+import { labelFuncionalidad } from "../helpers/text";
+
 const ListadoFuncionalidades = (props) => {
     const { value, onChange } = props;
 
@@ -22,7 +25,7 @@ const ListadoFuncionalidades = (props) => {
 
     const opciones = Object.entries(funcionalidades).map(([id, info]) => ({
         id,
-        nombre: info?.nombre || id,
+        nombre: info?.nombre || id, // si firebase no trae nombre, usamos el ID
     }));
 
     if (isLoading) {
@@ -35,7 +38,7 @@ const ListadoFuncionalidades = (props) => {
 
     if (error) {
         return (
-            <Message variant="error" message={error.message || "Error al cargar funcionalidades"}/>
+            <Message variant="error" message={error.message || "Error al cargar funcionalidades"} />
         );
     }
 
@@ -46,9 +49,10 @@ const ListadoFuncionalidades = (props) => {
             onChange={(e) => onChange(e.target.value)}
         >
             <option value="">Seleccioná una funcionalidad</option>
+
             {opciones.map((f) => (
                 <option key={f.id} value={f.id}>
-                    {f.nombre.charAt(0).toUpperCase() + f.nombre.slice(1)}
+                    {labelFuncionalidad(f.nombre)}
                 </option>
             ))}
         </select>
