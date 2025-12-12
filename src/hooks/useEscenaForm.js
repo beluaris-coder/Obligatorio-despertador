@@ -6,7 +6,7 @@ export const useEscenaForm = (escenaExistente) => {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [horarios, setHorarios] = useState([{ dia: "", hora: "" }]);
-  const [duracion, setDuracion] = useState(0);
+  const [duracion, setDuracion] = useState("");
   const [acciones, setAcciones] = useState([{ funcionalidad: "", parametros: {} }]);
   const [errorLocal, setErrorLocal] = useState("");
 
@@ -15,6 +15,12 @@ export const useEscenaForm = (escenaExistente) => {
 
     setTitulo(escenaExistente.titulo || "");
     setDescripcion(escenaExistente.descripcion || "");
+    // cargar duracion como string vacío si no existe o es 0
+    setDuracion(
+      escenaExistente.duracion !== undefined && escenaExistente.duracion !== null && escenaExistente.duracion !== 0
+        ? String(escenaExistente.duracion)
+        : ""
+    );
 
     const parsedHorarios = (escenaExistente.diasHorarios || []).map((linea) => {
       if (!linea) return { dia: "", hora: "" };

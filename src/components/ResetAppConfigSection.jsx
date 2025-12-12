@@ -7,7 +7,6 @@ import BloqueCardConfig from "./BloqueCardConfig";
 import Message from "./Shared/Message";
 import Button from "./Shared/Button";
 
-
 const ResetAppConfigSection = () => {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const queryClient = useQueryClient();
@@ -23,6 +22,8 @@ const ResetAppConfigSection = () => {
         .forEach((k) => localStorage.removeItem(k));
     },
     onSuccess: () => {
+      // actualizar cache para que se borren del dashboard
+      queryClient.setQueryData(["escenas"], {});
       queryClient.invalidateQueries({ queryKey: ["escenas"] });
       setMostrarConfirmacion(false);
     },
