@@ -1,5 +1,3 @@
-// App.jsx
-import "./App.css";
 import { Routes, Route, NavLink, useLocation } from "react-router-dom";
 import { MdAddCircle, MdSettings, MdDashboard } from "react-icons/md";
 

@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MdPlayArrow, MdStop  } from "react-icons/md";
+import { MdPlayArrow, MdStop } from "react-icons/md";
 
 import { IMAGENES_ESCENAS } from "../helpers/constants";
 import { useEjecutarEscena } from "../hooks/useEjecutarEscena";
 import { useEscenasStore } from "../store/escenasStore";
 import IconButtonPlay from "./Shared/IconButtonPlay";
+
+const limpiarRuta = (ruta) =>
+  ruta?.replace(/^public\//, "/").replace(/^\/public\//, "/") ?? "";
 
 const CardEscena = ({ id }) => {
   const navigate = useNavigate();
@@ -22,7 +25,10 @@ const CardEscena = ({ id }) => {
 
   const indexValido = Number.isInteger(imagenIndex) && IMAGENES_ESCENAS.length > 0 ? Math.abs(imagenIndex) % IMAGENES_ESCENAS.length : 0;
 
-  const img = typeof imagen === "string" && imagen.length > 0 ? imagen : IMAGENES_ESCENAS[indexValido] || IMAGENES_ESCENAS[0];
+  // Se limpia la ruta en caso de que venga con "public/..."
+  const imagenLimpia = imagen ? limpiarRuta(imagen) : null;
+
+  const img = imagenLimpia && imagenLimpia.length > 0 ? imagenLimpia : IMAGENES_ESCENAS[indexValido];
 
   const handlePlay = async (e) => {
     e.preventDefault();
@@ -35,8 +41,8 @@ const CardEscena = ({ id }) => {
       setLoading(true);
       try {
         await stopRemoto(id);
-      } 
-       finally {
+      }
+      finally {
         setLoading(false);
       }
       return;
