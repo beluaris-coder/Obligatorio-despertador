@@ -1,6 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-
-import { API_URL } from "../helpers/constants";
 import { useFuncionalidades } from "../hooks/useFuncionalidades";
 import { labelFuncionalidad } from "../helpers/text";
 import Loader from "./Shared/Loader";

@@ -56,6 +56,10 @@ const Paso2Form = (props) => {
                               onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}/>
                           )}
 
+                          {def.tipo === "color" && (
+                            <input type="color" value={accion.parametros?.[paramID] || "#ffffff"} onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}/>
+                          )}
+
                           {def.tipo === "select" && (
                             <select className="border rounded-lg px-3 py-1.5 text-sm" value={accion.parametros?.[paramID] || ""}
                               onChange={(e) => handleChangeAccionParametro(index, paramID, e.target.value)}>
